@@ -62,6 +62,13 @@ public class MainActivity extends AppCompatActivity {
         searchedListView.setAdapter(arrayAdapter);
     }
 
+    /*
+    Title: Android SearchView with Example
+    Author: Rishabh007
+    Date: 18 Feb, 2021
+    Type: Android
+    Availability: https://www.geeksforgeeks.org/android-searchview-with-example/
+    */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
