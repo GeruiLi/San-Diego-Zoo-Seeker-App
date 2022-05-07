@@ -7,7 +7,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -18,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -93,8 +93,13 @@ public class MainActivity extends AppCompatActivity {
         Section for exhibit list
          */
 
+        ExhibitListItemDao exhibitListItemDao =
+                ExhibitTodoDatabase.getSingleton(this).exhibitListItemDao();
+        List<ExhibitListItem> exhibitListItems = exhibitListItemDao.getAll();
+
         ExhibitListAdapter exhibitListAdapter = new ExhibitListAdapter();
         exhibitListAdapter.setHasStableIds(true);
+        exhibitListAdapter.setExhibitListItems(exhibitListItems);
 
         exhibitRecyclerView = findViewById(R.id.exhibitItems);
         exhibitRecyclerView.setLayoutManager(new LinearLayoutManager(this));
