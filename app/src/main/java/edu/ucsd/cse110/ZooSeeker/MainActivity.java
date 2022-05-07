@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -20,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+
+    private final String SELECTED_TOTAL = "# of Exhibits Selected :";
 
     //views
     public ListView searchedListView;
@@ -82,13 +85,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String selectedExhibit = (String) parent.getItemAtPosition(position);
-                textView.setText(selectedExhibit);
+                textView.setText(SELECTED_TOTAL + " " + selectedExhibit);
             }
         });
 
         /*
         Section for exhibit list
          */
+
         ExhibitListAdapter exhibitListAdapter = new ExhibitListAdapter();
         exhibitListAdapter.setHasStableIds(true);
 
