@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 public abstract class ExhibitTodoDatabase extends RoomDatabase {
     private static ExhibitTodoDatabase singleton = null;
 
-    public abstract ExhibitListItemDao todoListItemDao();
+    public abstract ExhibitListItemDao exhibitListItemDao();
 
     public synchronized static ExhibitTodoDatabase getSingleton(Context context) {
         if (singleton == null) {
