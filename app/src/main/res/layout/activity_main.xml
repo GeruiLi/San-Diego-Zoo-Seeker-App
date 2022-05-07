@@ -9,13 +9,23 @@
     <!--List View from which data is to be searched-->
     <ListView
         android:id="@+id/searchedListView"
-        android:layout_width="340dp"
-        android:layout_height="372dp"
+        android:layout_width="335dp"
+        android:layout_height="304dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.272" />
+        app:layout_constraintVertical_bias="0.185" />
+
+    <TextView
+        android:id="@+id/exhibitListIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Selected exhibits:"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/selectExhibitListView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchedListView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

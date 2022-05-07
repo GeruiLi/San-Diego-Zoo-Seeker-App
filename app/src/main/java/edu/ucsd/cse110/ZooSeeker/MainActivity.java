@@ -5,13 +5,14 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.MenuItemCompat;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -20,10 +21,10 @@ public class MainActivity extends AppCompatActivity {
 
     ListView searchedListView;
 
-    // Define array adapter for ListView
-    ArrayAdapter<String> arrayAdapter;
+    // Define array adapter for searchedListView
+    ArrayAdapter<String> pullDownMenuArrayAdapter;
 
-    // Define array List for List View data
+    // Define array Lists for ListView data
     ArrayList<String> animalExhibitList;
 
     @Override
@@ -37,11 +38,14 @@ public class MainActivity extends AppCompatActivity {
         Map<String, ZooData.VertexInfo> vertexInfoMap = ZooData.loadVertexInfoJSON(this,"sample_node_info.json");
         Map<String, ZooData.EdgeInfo> edgeInfoMap = ZooData.loadEdgeInfoJSON(this,"sample_edge_info.json");
 
-        //initialise ListView
+        //initialize ListView for search bar scroll-down menu
         searchedListView = findViewById(R.id.searchedListView);
 
         //Initialize animalExhibitList
         animalExhibitList = new ArrayList<>();
+
+        TextView textView = (TextView) findViewById(R.id.exhibitListIndicator);
+
         //Filter out all the exhibits into the animalExhibitList
         ZooData.VertexInfo exhibitInfo;
         //interate through the vertex map using the keys (id) of vertexInfoMap
@@ -53,13 +57,22 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        //Set adapter to ListView
-        arrayAdapter
+        //Set adapter to searchedListView
+        pullDownMenuArrayAdapter
                 = new ArrayAdapter<String>(
                         this,
                         android.R.layout.simple_list_item_1,
                         animalExhibitList);
-        searchedListView.setAdapter(arrayAdapter);
+        searchedListView.setAdapter(pullDownMenuArrayAdapter);
+
+        //this is added temporarily to showcase an onclick listener for search bar pull down menu items
+        searchedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectedExhibit = (String) parent.getItemAtPosition(position);
+                textView.setText(selectedExhibit);
+            }
+        });
     }
 
     /*
@@ -94,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                         //then filter the adapter using the filter method
                         //and use the query as its argument
                         if (animalExhibitList.contains(query)) {
-                            arrayAdapter.getFilter().filter(query);
+                            pullDownMenuArrayAdapter.getFilter().filter(query);
                         }
                         else {
                             //The query being searched is not found
@@ -111,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                     //while the user is typing in search bar
                     @Override
                     public boolean onQueryTextChange(String newQueryText) {
-                        arrayAdapter.getFilter().filter(newQueryText);
+                        pullDownMenuArrayAdapter.getFilter().filter(newQueryText);
                         return false;
                     }
 
@@ -120,4 +133,5 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onCreateOptionsMenu(menu);
     }
+
 }
