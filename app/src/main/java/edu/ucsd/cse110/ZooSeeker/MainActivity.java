@@ -13,30 +13,42 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    ListView searchedListView;
+    //views
+    public ListView searchedListView;
+    public RecyclerView exhibitRecyclerView;
 
     // Define array adapter for searchedListView
-    ArrayAdapter<String> pullDownMenuArrayAdapter;
+    public ArrayAdapter<String> pullDownMenuArrayAdapter;
 
     // Define array Lists for ListView data
-    ArrayList<String> animalExhibitList;
+    public ArrayList<String> animalExhibitList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /*
+        Section for vertex/edge/graph info
+         */
+
         //not going to use the graph yet for the searching function
         //Graph<String, IdentifiedWeightedEdge> graphInfoMap = ZooData.loadZooGraphJSON(this,"sample_zoo_graph.json");
         //Map<id, VertexInfo>
         Map<String, ZooData.VertexInfo> vertexInfoMap = ZooData.loadVertexInfoJSON(this,"sample_node_info.json");
         Map<String, ZooData.EdgeInfo> edgeInfoMap = ZooData.loadEdgeInfoJSON(this,"sample_edge_info.json");
+
+        /*
+        Section for search bar
+         */
 
         //initialize ListView for search bar scroll-down menu
         searchedListView = findViewById(R.id.searchedListView);
@@ -73,6 +85,16 @@ public class MainActivity extends AppCompatActivity {
                 textView.setText(selectedExhibit);
             }
         });
+
+        /*
+        Section for exhibit list
+         */
+        ExhibitListAdapter exhibitListAdapter = new ExhibitListAdapter();
+        exhibitListAdapter.setHasStableIds(true);
+
+        exhibitRecyclerView = findViewById(R.id.exhibitItems);
+        exhibitRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        exhibitRecyclerView.setAdapter(exhibitListAdapter);
     }
 
     /*
