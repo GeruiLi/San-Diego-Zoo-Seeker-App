@@ -10,12 +10,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class ExhibitListAdapter extends RecyclerView.Adapter<ExhibitListAdapter.ViewHolder> {
     private List<ExhibitListItem> selectedExhibits = Collections.emptyList();
     private Consumer<ExhibitListItem> onCheckBoxClicked;
     private Consumer<ExhibitListItem> onDeleteBtnClicked;
+    private BiConsumer<ExhibitListItem, String> onTextBoxChanged;
 
     public void setExhibitListItems(List<ExhibitListItem> newExhibitItems) {
         this.selectedExhibits.clear();
@@ -29,6 +31,10 @@ public class ExhibitListAdapter extends RecyclerView.Adapter<ExhibitListAdapter.
 
     public void setOnDeleteBtnClickedHandler(Consumer<ExhibitListItem> onDeleteBtnClicked) {
         this.onDeleteBtnClicked = onDeleteBtnClicked;
+    }
+
+    public void setOnTextChangedHandler(BiConsumer<ExhibitListItem, String> onTextBoxChanged) {
+        this.onTextBoxChanged = onTextBoxChanged;
     }
 
     @NonNull
@@ -81,6 +87,7 @@ public class ExhibitListAdapter extends RecyclerView.Adapter<ExhibitListAdapter.
 
         public void setExhibitListItem(ExhibitListItem exhibitListItem) {
             this.exhibitListItem = exhibitListItem;
+            this.textView.setText(exhibitListItem.exhibitName);
             this.checkBox.setChecked(exhibitListItem.selected);
         }
     }

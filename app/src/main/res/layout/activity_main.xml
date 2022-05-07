@@ -10,8 +10,8 @@
 
     <ListView
         android:id="@+id/searchedListView"
-        android:layout_width="335dp"
-        android:layout_height="304dp"
+        android:layout_width="336dp"
+        android:layout_height="250dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,7 +22,7 @@
         android:id="@+id/exhibitListIndicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="88dp"
+        android:layout_marginTop="104dp"
         android:text="@string/total_exhibits_selected"
         android:textSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -32,11 +32,13 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/exhibitItems"
         android:layout_width="406dp"
-        android:layout_height="276dp"
+        android:layout_height="252dp"
         android:layout_marginTop="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.4"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/exhibitListIndicator" />
+        app:layout_constraintTop_toBottomOf="@+id/exhibitListIndicator"
+        app:layout_constraintVertical_bias="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

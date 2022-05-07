@@ -109,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
         exhibitListAdapter.setHasStableIds(true);
         exhibitListAdapter.setOnCheckBoxClickedHandler(exhibitTodoViewModel::toggleSelected);
         exhibitListAdapter.setOnDeleteBtnClickedHandler(exhibitTodoViewModel::setDeleted);
+        exhibitListAdapter.setOnTextChangedHandler(exhibitTodoViewModel::updateText);
         exhibitTodoViewModel
                 .getTodoListItems()
                 .observe(this, exhibitListAdapter::setExhibitListItems);
