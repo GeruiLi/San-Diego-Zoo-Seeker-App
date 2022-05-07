@@ -22,4 +22,5 @@ public class ExhibitListItem {
         this.selected = selected;
         this.order = order;
     }
+
 }
