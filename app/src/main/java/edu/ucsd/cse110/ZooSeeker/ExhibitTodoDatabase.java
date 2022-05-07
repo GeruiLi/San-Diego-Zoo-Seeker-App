@@ -9,24 +9,23 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import java.util.List;
 import java.util.concurrent.Executors;
 
 @Database(entities = {ExhibitListItem.class}, version = 1)
-public abstract class TodoDatabase extends RoomDatabase {
-    private static TodoDatabase singleton = null;
+public abstract class ExhibitTodoDatabase extends RoomDatabase {
+    private static ExhibitTodoDatabase singleton = null;
 
     public abstract ExhibitListItemDao todoListItemDao();
 
-    public synchronized static TodoDatabase getSingleton(Context context) {
+    public synchronized static ExhibitTodoDatabase getSingleton(Context context) {
         if (singleton == null) {
-            singleton = TodoDatabase.makeDatabase(context);
+            singleton = ExhibitTodoDatabase.makeDatabase(context);
         }
         return singleton;
     }
 
-    private static TodoDatabase makeDatabase(Context context) {
-        return Room.databaseBuilder(context, TodoDatabase.class, "todo_app.db")
+    private static ExhibitTodoDatabase makeDatabase(Context context) {
+        return Room.databaseBuilder(context, ExhibitTodoDatabase.class, "todo_app.db")
                 .allowMainThreadQueries()
                 .addCallback(new Callback() {
                     @Override
@@ -43,7 +42,7 @@ public abstract class TodoDatabase extends RoomDatabase {
     }
 
     @VisibleForTesting
-    public static void injectTestDatabase(TodoDatabase testDatabase) {
+    public static void injectTestDatabase(ExhibitTodoDatabase testDatabase) {
         if (singleton != null ) {
             singleton.close();
         }

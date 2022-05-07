@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
         /*
         Section for exhibit list
          */
+
         ExhibitListAdapter exhibitListAdapter = new ExhibitListAdapter();
         exhibitListAdapter.setHasStableIds(true);
 
