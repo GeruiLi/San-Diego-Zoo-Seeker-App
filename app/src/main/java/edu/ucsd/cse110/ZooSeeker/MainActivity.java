@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,6 +24,9 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
 
     private final String SELECTED_TOTAL = "# of Exhibits Selected :";
+
+    //view model
+    private ExhibitTodoViewModel exhibitTodoViewModel;
 
     //views
     public ListView searchedListView;
@@ -85,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String selectedExhibit = (String) parent.getItemAtPosition(position);
+                exhibitTodoViewModel.createTodo(selectedExhibit);
                 textView.setText(SELECTED_TOTAL + " " + selectedExhibit);
             }
         });
@@ -93,13 +98,20 @@ public class MainActivity extends AppCompatActivity {
         Section for exhibit list
          */
 
+        exhibitTodoViewModel = new ViewModelProvider(this)
+                .get(ExhibitTodoViewModel.class);
+
         ExhibitListItemDao exhibitListItemDao =
                 ExhibitTodoDatabase.getSingleton(this).exhibitListItemDao();
         List<ExhibitListItem> exhibitListItems = exhibitListItemDao.getAll();
 
         ExhibitListAdapter exhibitListAdapter = new ExhibitListAdapter();
         exhibitListAdapter.setHasStableIds(true);
-        exhibitListAdapter.setExhibitListItems(exhibitListItems);
+        exhibitListAdapter.setOnCheckBoxClickedHandler(exhibitTodoViewModel::toggleSelected);
+        exhibitListAdapter.setOnDeleteBtnClickedHandler(exhibitTodoViewModel::setDeleted);
+        exhibitTodoViewModel
+                .getTodoListItems()
+                .observe(this, exhibitListAdapter::setExhibitListItems);
 
         exhibitRecyclerView = findViewById(R.id.exhibitItems);
         exhibitRecyclerView.setLayoutManager(new LinearLayoutManager(this));

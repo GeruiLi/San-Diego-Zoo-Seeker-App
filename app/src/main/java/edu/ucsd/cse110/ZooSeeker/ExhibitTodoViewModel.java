@@ -34,7 +34,7 @@ public class ExhibitTodoViewModel extends AndroidViewModel {
         exhibitListItems = exhibitListItemDao.getAllLive();
     }
 
-    public void toggleCompleted(ExhibitListItem exhibitListItem) {
+    public void toggleSelected(ExhibitListItem exhibitListItem) {
         exhibitListItem.selected = !exhibitListItem.selected;
         exhibitListItemDao.update(exhibitListItem);
     }
