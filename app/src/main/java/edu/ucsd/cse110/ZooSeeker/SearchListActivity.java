@@ -2,7 +2,6 @@ package edu.ucsd.cse110.ZooSeeker;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -38,8 +37,7 @@ public class SearchListActivity extends AppCompatActivity {
     public ArrayAdapter<String> pullDownMenuArrayAdapter;
 
     // Define array Lists for ListView data
-    public ArrayList<String> animalExhibitList;
-    public static ArrayList<String> exhibitIdList;
+    public ArrayList<String> animalExhibitIdList;
 
     // Data structure, adapters, database modules related to the exhibit list
     public static List<ExhibitListItem> exhibitListItems;
@@ -68,22 +66,20 @@ public class SearchListActivity extends AppCompatActivity {
         //initialize ListView for search bar scroll-down menu
         searchedListView = findViewById(R.id.searchedListView);
 
-        //Initialize animalExhibitList and exhibitIdList
-        animalExhibitList = new ArrayList<>();
-        exhibitIdList = new ArrayList<>();
+        //Initialize animalExhibitIdList and exhibitIdList
+        animalExhibitIdList = new ArrayList<>();
 
         //textview for showing total count of selected exhibits
         exhibitCountTextView = (TextView) findViewById(R.id.exhibitListIndicator);
 
-        //Filter out all the exhibits into the animalExhibitList
+        //Filter out all the exhibits into the animalExhibitIdList
         ZooData.VertexInfo exhibitInfo;
         //interate through the vertex map using the keys (id) of vertexInfoMap
         for (String key : vertexInfoMap.keySet()) {
             exhibitInfo = vertexInfoMap.get(key);
-            //if this vertex is an exhibit, add it to animalExhibitList
+            //if this vertex is an exhibit, add it to animalExhibitIdList
             if (exhibitInfo.kind == ZooData.VertexInfo.Kind.EXHIBIT) {
-                animalExhibitList.add(exhibitInfo.name);
-                exhibitIdList.add(exhibitInfo.id);
+                animalExhibitIdList.add(exhibitInfo.id);
             }
         }
 
@@ -92,7 +88,7 @@ public class SearchListActivity extends AppCompatActivity {
                 = new ArrayAdapter<String>(
                 this,
                 android.R.layout.simple_list_item_1,
-                animalExhibitList);
+                animalExhibitIdList);
         searchedListView.setAdapter(pullDownMenuArrayAdapter);
 
         //onclick listener for search bar menu entries
@@ -170,7 +166,7 @@ public class SearchListActivity extends AppCompatActivity {
                         //If the searched query is contained in the list
                         //then filter the adapter using the filter method
                         //and use the query as its argument
-                        if (animalExhibitList.contains(query)) {
+                        if (animalExhibitIdList.contains(query)) {
                             pullDownMenuArrayAdapter.getFilter().filter(query);
                         }
                         else {
