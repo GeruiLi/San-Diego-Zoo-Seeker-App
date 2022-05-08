@@ -13,6 +13,9 @@
             android:name=".PlanActivity"
             android:exported="false" />
         <activity
+            android:name=".SearchListActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

@@ -1,6 +1,6 @@
 package edu.ucsd.cse110.ZooSeeker;
 
-import static edu.ucsd.cse110.ZooSeeker.MainActivity.*;
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.*;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Collections;
