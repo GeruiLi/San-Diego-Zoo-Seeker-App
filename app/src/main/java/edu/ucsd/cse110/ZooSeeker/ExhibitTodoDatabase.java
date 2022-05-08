@@ -9,6 +9,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 
 @Database(entities = {ExhibitListItem.class}, version = 1)
@@ -32,9 +33,8 @@ public abstract class ExhibitTodoDatabase extends RoomDatabase {
                     public void onCreate(@NonNull SupportSQLiteDatabase db) {
                         super.onCreate(db);
                         Executors.newSingleThreadScheduledExecutor().execute(() -> {
-                          /*  List<ExhibitListItem> todos = ExhibitListItem
-                                    .loadJSON(context, "demo_todos.json");
-                            getSingleton(context).todoListItemDao().insertAll(todos);*/
+                            /*getSingleton(context).exhibitListItemDao().insert(new ExhibitListItem("entrance_exit_gate", true, 1));
+                            getSingleton(context).exhibitListItemDao().insert(new ExhibitListItem("entrance_plaza", true, 2)); */
                         });
                     }
                 })

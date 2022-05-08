@@ -12,6 +12,7 @@ public class ExhibitListItem {
 
     @NonNull
     public String exhibitName;
+    //public map<String,Double> neighbors;
     public boolean selected;
     public int order;
 
@@ -22,5 +23,10 @@ public class ExhibitListItem {
         this.selected = selected;
         this.order = order;
     }
+
+    public String getExhibitName(){
+        return exhibitName;
+    }
+
 
 }

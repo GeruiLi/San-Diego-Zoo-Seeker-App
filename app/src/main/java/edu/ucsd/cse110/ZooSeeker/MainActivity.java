@@ -1,5 +1,6 @@
 package edu.ucsd.cse110.ZooSeeker;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -117,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
         exhibitRecyclerView = findViewById(R.id.exhibitItems);
         exhibitRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         exhibitRecyclerView.setAdapter(exhibitListAdapter);
+
+        findViewById(R.id.plan_btn).setOnClickListener(this::onLaunchPlanClicked);
     }
 
     /*
@@ -178,4 +181,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+
+    public void onLaunchPlanClicked(View view) {
+        Intent intent = new Intent(this,PlanActivity.class);
+        startActivity(intent);
+    }
 }

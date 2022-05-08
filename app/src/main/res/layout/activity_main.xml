@@ -41,4 +41,16 @@
         app:layout_constraintTop_toBottomOf="@+id/exhibitListIndicator"
         app:layout_constraintVertical_bias="1.0" />
 
+    <Button
+        android:id="@+id/plan_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="Plan"
+        android:onClick="onLaunchPlanClicked"
+        app:layout_constraintStart_toEndOf="@+id/exhibitListIndicator"
+        app:layout_constraintTop_toBottomOf="@+id/searchedListView"
+        app:layout_constraintBottom_toTopOf="@+id/exhibitItems"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
