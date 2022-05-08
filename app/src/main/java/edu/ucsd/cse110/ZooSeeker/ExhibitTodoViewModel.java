@@ -8,6 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import org.jgrapht.Graph;
+
 import java.util.List;
 
 public class ExhibitTodoViewModel extends AndroidViewModel {

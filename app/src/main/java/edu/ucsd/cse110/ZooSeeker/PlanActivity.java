@@ -1,14 +1,23 @@
 package edu.ucsd.cse110.ZooSeeker;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
+import org.jgrapht.Graph;
+
+import java.util.Collections;
 import java.util.List;
 
 public class PlanActivity extends AppCompatActivity {
+
+    public RecyclerView recyclerView;
+    public RecyclerView recyclerView2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,11 +32,23 @@ public class PlanActivity extends AppCompatActivity {
         dao = db.exhibitListItemDao();
 
         List<ExhibitListItem> exhibitListItems = dao.getAll();
+        List<String> distance = Collections.emptyList();
 
-        TextView textView = findViewById(R.id.exhibitItems1);
+        PlanListAdapter adapter = new PlanListAdapter();
+        adapter.setHasStableIds(true);
 
-        textView.setText(exhibitListItems.get(0).getExhibitName());
+        recyclerView = findViewById(R.id.plan_items);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
 
+        adapter.setPlanListItems(exhibitListItems);
+        adapter.setDistance(distance);
+    }
 
+    public void DirectionClicked(View view) {
+    }
+
+    public void ReturnClicked(View view) {
+        finish();
     }
 }
