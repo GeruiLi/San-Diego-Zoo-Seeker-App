@@ -2,6 +2,7 @@ package edu.ucsd.cse110.ZooSeeker;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -38,6 +39,7 @@ public class SearchListActivity extends AppCompatActivity {
 
     // Define array Lists for ListView data
     public ArrayList<String> animalExhibitList;
+    public static ArrayList<String> exhibitIdList;
 
     // Data structure, adapters, database modules related to the exhibit list
     public static List<ExhibitListItem> exhibitListItems;
@@ -66,8 +68,9 @@ public class SearchListActivity extends AppCompatActivity {
         //initialize ListView for search bar scroll-down menu
         searchedListView = findViewById(R.id.searchedListView);
 
-        //Initialize animalExhibitList
+        //Initialize animalExhibitList and exhibitIdList
         animalExhibitList = new ArrayList<>();
+        exhibitIdList = new ArrayList<>();
 
         //textview for showing total count of selected exhibits
         exhibitCountTextView = (TextView) findViewById(R.id.exhibitListIndicator);
@@ -80,6 +83,7 @@ public class SearchListActivity extends AppCompatActivity {
             //if this vertex is an exhibit, add it to animalExhibitList
             if (exhibitInfo.kind == ZooData.VertexInfo.Kind.EXHIBIT) {
                 animalExhibitList.add(exhibitInfo.name);
+                exhibitIdList.add(exhibitInfo.id);
             }
         }
 
