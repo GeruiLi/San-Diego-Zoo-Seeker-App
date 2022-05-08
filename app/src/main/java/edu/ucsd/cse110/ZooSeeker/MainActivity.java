@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final String SELECTED_TOTAL = "# of Exhibits Selected :";
+    public static final String SELECTED_TOTAL = "# of Exhibits Selected :";
 
     //view model
     private ExhibitTodoViewModel exhibitTodoViewModel;
@@ -32,12 +32,18 @@ public class MainActivity extends AppCompatActivity {
     //views
     public ListView searchedListView;
     public RecyclerView exhibitRecyclerView;
+    public static TextView exhibitCountTextView;
 
     // Define array adapter for searchedListView
     public ArrayAdapter<String> pullDownMenuArrayAdapter;
 
     // Define array Lists for ListView data
     public ArrayList<String> animalExhibitList;
+
+    // Data structure, adapters, database modules related to the exhibit list
+    public static List<ExhibitListItem> exhibitListItems;
+    public static ExhibitListItemDao exhibitListItemDao;
+    public ExhibitListAdapter exhibitListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +70,8 @@ public class MainActivity extends AppCompatActivity {
         //Initialize animalExhibitList
         animalExhibitList = new ArrayList<>();
 
-        TextView textView = (TextView) findViewById(R.id.exhibitListIndicator);
+        //textview for showing total count of selected exhibits
+        exhibitCountTextView = (TextView) findViewById(R.id.exhibitListIndicator);
 
         //Filter out all the exhibits into the animalExhibitList
         ZooData.VertexInfo exhibitInfo;
@@ -85,13 +92,16 @@ public class MainActivity extends AppCompatActivity {
                         animalExhibitList);
         searchedListView.setAdapter(pullDownMenuArrayAdapter);
 
-        //this is added temporarily to showcase an onclick listener for search bar pull down menu items
+        //onclick listener for search bar menu entries
         searchedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String selectedExhibit = (String) parent.getItemAtPosition(position);
                 exhibitTodoViewModel.createTodo(selectedExhibit);
-                textView.setText(SELECTED_TOTAL + " " + selectedExhibit);
+
+                //Get data from Dao and update total selected count
+                exhibitListItems = exhibitListItemDao.getAll();
+                exhibitCountTextView.setText(SELECTED_TOTAL + " " + exhibitListItems.size());
             }
         });
 
@@ -102,11 +112,11 @@ public class MainActivity extends AppCompatActivity {
         exhibitTodoViewModel = new ViewModelProvider(this)
                 .get(ExhibitTodoViewModel.class);
 
-        ExhibitListItemDao exhibitListItemDao =
+        exhibitListItemDao =
                 ExhibitTodoDatabase.getSingleton(this).exhibitListItemDao();
-        List<ExhibitListItem> exhibitListItems = exhibitListItemDao.getAll();
+        exhibitListItems = exhibitListItemDao.getAll();
 
-        ExhibitListAdapter exhibitListAdapter = new ExhibitListAdapter();
+        exhibitListAdapter = new ExhibitListAdapter();
         exhibitListAdapter.setHasStableIds(true);
         exhibitListAdapter.setOnCheckBoxClickedHandler(exhibitTodoViewModel::toggleSelected);
         exhibitListAdapter.setOnDeleteBtnClickedHandler(exhibitTodoViewModel::setDeleted);
@@ -118,6 +128,10 @@ public class MainActivity extends AppCompatActivity {
         exhibitRecyclerView = findViewById(R.id.exhibitItems);
         exhibitRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         exhibitRecyclerView.setAdapter(exhibitListAdapter);
+
+        /*
+        Section for plan button
+         */
 
         findViewById(R.id.plan_btn).setOnClickListener(this::onLaunchPlanClicked);
     }

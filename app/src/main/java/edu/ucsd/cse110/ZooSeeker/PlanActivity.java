@@ -28,7 +28,7 @@ public class PlanActivity extends AppCompatActivity {
         ExhibitTodoDatabase db;
 
         Context context = getApplication().getApplicationContext();
-        db= ExhibitTodoDatabase.getSingleton(context);
+        db = ExhibitTodoDatabase.getSingleton(context);
         dao = db.exhibitListItemDao();
 
         List<ExhibitListItem> exhibitListItems = dao.getAll();

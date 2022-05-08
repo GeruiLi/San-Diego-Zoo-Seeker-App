@@ -1,5 +1,7 @@
 package edu.ucsd.cse110.ZooSeeker;
 
+import static edu.ucsd.cse110.ZooSeeker.MainActivity.*;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,6 +84,8 @@ public class ExhibitListAdapter extends RecyclerView.Adapter<ExhibitListAdapter.
             this.deleteBtn.setOnClickListener(view -> {
                 if (onDeleteBtnClicked == null) return;
                 onDeleteBtnClicked.accept(exhibitListItem);
+                exhibitListItems = exhibitListItemDao.getAll();
+                exhibitCountTextView.setText(SELECTED_TOTAL + " " + exhibitListItems.size());
             });
         }
 
