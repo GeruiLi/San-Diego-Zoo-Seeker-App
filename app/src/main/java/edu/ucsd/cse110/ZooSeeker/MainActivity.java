@@ -195,6 +195,14 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        //Get data from Dao and update total selected count
+        exhibitListItems = exhibitListItemDao.getAll();
+        exhibitCountTextView.setText(SELECTED_TOTAL + " " + exhibitListItems.size());
+    }
 
     public void onLaunchPlanClicked(View view) {
         Intent intent = new Intent(this,PlanActivity.class);

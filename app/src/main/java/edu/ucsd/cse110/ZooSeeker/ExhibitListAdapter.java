@@ -84,6 +84,8 @@ public class ExhibitListAdapter extends RecyclerView.Adapter<ExhibitListAdapter.
             this.deleteBtn.setOnClickListener(view -> {
                 if (onDeleteBtnClicked == null) return;
                 onDeleteBtnClicked.accept(exhibitListItem);
+
+                //Get data from Dao and update total selected count
                 exhibitListItems = exhibitListItemDao.getAll();
                 exhibitCountTextView.setText(SELECTED_TOTAL + " " + exhibitListItems.size());
             });
