@@ -20,18 +20,6 @@ public class DirectionActivityTest {
             = new ActivityScenarioRule<>(DirectionActivity.class);
 
     @Test
-    public void test_initial_input(){
-        ActivityScenario<DirectionActivity> scenario = scenarioRule.getScenario();
-
-        scenario.moveToState(Lifecycle.State.CREATED);
-
-        scenario.onActivity(activity -> {
-            TextView direction = activity.findViewById(R.id.direction_inf);
-            assertEquals("Walk 10 feet along Entrance Way.", direction.getText().toString());
-        });
-    }
-
-    @Test
     public void test_modified_input(){
         ActivityScenario<DirectionActivity> scenario = scenarioRule.getScenario();
 
