@@ -1,5 +1,6 @@
 package edu.ucsd.cse110.ZooSeeker;
 
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.*;
 
 import android.app.Application;
 import android.content.Context;
@@ -13,7 +14,7 @@ import org.jgrapht.Graph;
 import java.util.List;
 
 public class ExhibitTodoViewModel extends AndroidViewModel {
-    private LiveData<List<ExhibitListItem>> exhibitListItems;
+    private LiveData<List<ExhibitListItem>> exhibitListLiveItems;
     private final ExhibitListItemDao exhibitListItemDao;
 
 
@@ -25,15 +26,15 @@ public class ExhibitTodoViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<ExhibitListItem>> getTodoListItems() {
-        if (exhibitListItems == null) {
+        if (exhibitListLiveItems == null) {
             loadUsers();
         }
 
-        return exhibitListItems;
+        return exhibitListLiveItems;
     }
 
     private void loadUsers() {
-        exhibitListItems = exhibitListItemDao.getAllLive();
+        exhibitListLiveItems = exhibitListItemDao.getAllLive();
     }
 
     public void toggleSelected(ExhibitListItem exhibitListItem) {
@@ -51,6 +52,10 @@ public class ExhibitTodoViewModel extends AndroidViewModel {
         //int endOfListOrder = todoListItemDao.getOrderForAppend();
         ExhibitListItem newItem = new ExhibitListItem(text,false, endOfListOrder);
         exhibitListItemDao.insert(newItem);
+
+        //Get data from Dao and update total selected count
+        exhibitListItems = exhibitListItemDao.getAll();
+        exhibitCountTextView.setText(SELECTED_TOTAL + " " + exhibitListItems.size());
     }
 
     public void setDeleted(ExhibitListItem exhibitListItem){

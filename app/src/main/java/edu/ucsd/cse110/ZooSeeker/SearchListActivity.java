@@ -38,7 +38,7 @@ public class SearchListActivity extends AppCompatActivity {
     public ArrayAdapter<String> pullDownMenuArrayAdapter;
 
     // Define array Lists for ListView data
-    public ArrayList<String> animalExhibitIdList;
+    public ArrayList<String> animalExhibitList;
 
     // Data structure, adapters, database modules related to the exhibit list
     public static List<ExhibitListItem> exhibitListItems;
@@ -51,6 +51,12 @@ public class SearchListActivity extends AppCompatActivity {
 
     // Map that maps exhibit id to exhibit name <name, id>
     public static Map<String, String> nameToIDMap;
+
+    // String that store the selectedExhibit
+    private String selectedExhibit;
+
+    // ArrayList<String> that store all selected exhibits
+    private ArrayList<String> selectedExhibitList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,20 +83,20 @@ public class SearchListActivity extends AppCompatActivity {
         //initialize ListView for search bar scroll-down menu
         searchedListView = findViewById(R.id.searchedListView);
 
-        //Initialize animalExhibitIdList and exhibitIdList
-        animalExhibitIdList = new ArrayList<>();
+        //Initialize animalExhibitList and exhibitIdList
+        animalExhibitList = new ArrayList<>();
 
         //textview for showing total count of selected exhibits
         exhibitCountTextView = (TextView) findViewById(R.id.exhibitListIndicator);
 
-        //Filter out all the exhibits into the animalExhibitIdList
+        //Filter out all the exhibits into the animalExhibitList
         ZooData.VertexInfo exhibitInfo;
         //interate through the vertex map using the keys (id) of vertexInfoMap
         for (String key : vertexInfoMap.keySet()) {
             exhibitInfo = vertexInfoMap.get(key);
-            //if this vertex is an exhibit, add it to animalExhibitIdList
+            //if this vertex is an exhibit, add it to animalExhibitList
             if (exhibitInfo.kind == ZooData.VertexInfo.Kind.EXHIBIT) {
-                animalExhibitIdList.add(exhibitInfo.name);
+                animalExhibitList.add(exhibitInfo.name);
                 nameToIDMap.put(exhibitInfo.name, exhibitInfo.id);
             }
         }
@@ -100,19 +106,26 @@ public class SearchListActivity extends AppCompatActivity {
                 = new ArrayAdapter<String>(
                 this,
                 android.R.layout.simple_list_item_1,
-                animalExhibitIdList);
+                animalExhibitList);
         searchedListView.setAdapter(pullDownMenuArrayAdapter);
 
         //onclick listener for search bar menu entries
         searchedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String selectedExhibit = (String) parent.getItemAtPosition(position);
-                exhibitTodoViewModel.createTodo(selectedExhibit);
+                selectedExhibit = (String) parent.getItemAtPosition(position);
 
                 //Get data from Dao and update total selected count
                 exhibitListItems = exhibitListItemDao.getAll();
-                exhibitCountTextView.setText(SELECTED_TOTAL + " " + exhibitListItems.size());
+                selectedExhibitList = new ArrayList<>();
+
+                for (ExhibitListItem item : exhibitListItems) {
+                    selectedExhibitList.add(item.exhibitName);
+                }
+
+                if (!selectedExhibitList.contains(selectedExhibit)) {
+                    exhibitTodoViewModel.createTodo(selectedExhibit);
+                }
             }
         });
 
@@ -178,7 +191,7 @@ public class SearchListActivity extends AppCompatActivity {
                         //If the searched query is contained in the list
                         //then filter the adapter using the filter method
                         //and use the query as its argument
-                        if (animalExhibitIdList.contains(query)) {
+                        if (animalExhibitList.contains(query)) {
                             pullDownMenuArrayAdapter.getFilter().filter(query);
                         }
                         else {
