@@ -25,6 +25,7 @@ public interface ExhibitListItemDao {
 
     @Delete
     int delete(ExhibitListItem exhibitListItem);
+
     //Test1
     @Insert
     List<Long> insertAll(List<ExhibitListItem> exhibitListItem);

@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -17,7 +18,6 @@ import java.util.List;
 public class PlanActivity extends AppCompatActivity {
 
     public RecyclerView recyclerView;
-    public RecyclerView recyclerView2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +46,9 @@ public class PlanActivity extends AppCompatActivity {
     }
 
     public void DirectionClicked(View view) {
+        Intent intent = new Intent(this, DirectionActivity.class);
+        finish();
+        startActivity(intent);
     }
 
     public void ReturnClicked(View view) {
