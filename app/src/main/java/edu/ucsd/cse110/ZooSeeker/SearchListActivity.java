@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +45,13 @@ public class SearchListActivity extends AppCompatActivity {
     public static ExhibitListItemDao exhibitListItemDao;
     public ExhibitListAdapter exhibitListAdapter;
 
+    // ZooData maps and graphs
+    public static Map<String, ZooData.VertexInfo> vertexInfoMap;
+    public static Map<String, ZooData.EdgeInfo> edgeInfoMap;
+
+    // Map that maps exhibit id to exhibit name <name, id>
+    public static Map<String, String> nameToIDMap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,8 +64,11 @@ public class SearchListActivity extends AppCompatActivity {
         //not going to use the graph yet for the searching function
         //Graph<String, IdentifiedWeightedEdge> graphInfoMap = ZooData.loadZooGraphJSON(this,"sample_zoo_graph.json");
         //Map<id, VertexInfo>
-        Map<String, ZooData.VertexInfo> vertexInfoMap = ZooData.loadVertexInfoJSON(this,"sample_node_info.json");
-        Map<String, ZooData.EdgeInfo> edgeInfoMap = ZooData.loadEdgeInfoJSON(this,"sample_edge_info.json");
+        vertexInfoMap = ZooData.loadVertexInfoJSON(this,"sample_node_info.json");
+        edgeInfoMap = ZooData.loadEdgeInfoJSON(this,"sample_edge_info.json");
+
+        //initialize idToNameMap
+        nameToIDMap = new HashMap<>();
 
         /*
         Section for search bar
@@ -79,7 +90,8 @@ public class SearchListActivity extends AppCompatActivity {
             exhibitInfo = vertexInfoMap.get(key);
             //if this vertex is an exhibit, add it to animalExhibitIdList
             if (exhibitInfo.kind == ZooData.VertexInfo.Kind.EXHIBIT) {
-                animalExhibitIdList.add(exhibitInfo.id);
+                animalExhibitIdList.add(exhibitInfo.name);
+                nameToIDMap.put(exhibitInfo.name, exhibitInfo.id);
             }
         }
 

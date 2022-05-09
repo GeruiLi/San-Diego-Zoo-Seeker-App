@@ -1,5 +1,7 @@
 package edu.ucsd.cse110.ZooSeeker;
 
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.nameToIDMap;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
@@ -63,7 +65,7 @@ public class DirectionActivity extends AppCompatActivity {
 
     public void NextClicked(View view) {
         if(current <= index){
-            this.nxt = exhibitListItems.get(current).exhibitName;
+            this.nxt = nameToIDMap.get(exhibitListItems.get(current).exhibitName);
             IdentifiedWeightedEdge edge = graphInfoMap.getEdge(cur,nxt);
             double weight = graphInfoMap.getEdgeWeight(edge);
             String direction = "Walk "
@@ -75,7 +77,7 @@ public class DirectionActivity extends AppCompatActivity {
 
             TextView distanceText = findViewById(R.id.distance_inf);
 
-            String next = this.nxt + " ," + String.valueOf((int)weight) + " ft";
+            String next = exhibitListItems.get(current).exhibitName + " ," + String.valueOf((int)weight) + " ft";
             distanceText.setText(next);
             this.cur = this.nxt;
             current = current + 1;
