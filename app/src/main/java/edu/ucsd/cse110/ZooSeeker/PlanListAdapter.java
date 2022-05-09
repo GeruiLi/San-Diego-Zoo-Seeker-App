@@ -66,7 +66,7 @@ public class PlanListAdapter extends RecyclerView.Adapter<PlanListAdapter.ViewHo
         public void setTodoItem(ExhibitListItem planItem, String distance) {
             this.planItem = planItem;
             this.exhibitName.setText(planItem.exhibitName);
-            this.distance.setText(distance);
+            //this.distance.setText(distance);
         }
     }
 }
