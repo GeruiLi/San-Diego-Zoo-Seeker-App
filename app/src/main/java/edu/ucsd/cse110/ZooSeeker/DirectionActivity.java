@@ -58,7 +58,7 @@ public class DirectionActivity extends AppCompatActivity {
         directionText.setText(firstDirection);
 
         TextView distanceText = findViewById(R.id.distance_inf);
-        String next = "entrance_plaza, " + String.valueOf((int)weight) + " ft";
+        String next = "Entrance Plaza, " + String.valueOf((int)weight) + " ft";
         distanceText.setText(next);
         this.cur = this.nxt;
     }
