@@ -24,10 +24,14 @@ public class RoutePlanner {
 
 
     public RoutePlanner(Graph<String, IdentifiedWeightedEdge> graphInfoMap, Map<String, ZooData.VertexInfo> vertexInfoMap,
-                        Map<String, ZooData.EdgeInfo> edgeInfoMap) {
+                        Map<String, ZooData.EdgeInfo> edgeInfoMap, List<String> userPlan) {
         this.graphInfoMap = graphInfoMap;
         this.vertexInfoMap = vertexInfoMap;
         this.edgeInfoMap = edgeInfoMap;
+
+        for(String exhibit : userPlan){
+            this.userPlan.add(nameToIDMap.get(exhibit));
+        }
 
         buildRoute();
     }
@@ -35,7 +39,7 @@ public class RoutePlanner {
     public void buildRoute() {
         String end = "";
         double distance = Double.MAX_VALUE;
-        GraphPath<String, IdentifiedWeightedEdge> path;
+        GraphPath<String, IdentifiedWeightedEdge> path = null;
         GraphPath<String, IdentifiedWeightedEdge> shortestPath = null;
 
         while (!userPlan.isEmpty()) {
@@ -54,10 +58,11 @@ public class RoutePlanner {
             for (IdentifiedWeightedEdge exhibit : edgeList) {  // exhibit is id, add all exhibit to route
                 route.add(nameToIDMap.get(graphInfoMap.getEdgeSource(exhibit)));
             }
-            route.add(nameToIDMap.get(end));
+           // route.add(nameToIDMap.get(end));
             start = end;
             userPlan.remove(end);
         }
+        route.add(nameToIDMap.get(end));
     }
 
     List<String> getRoute() {
