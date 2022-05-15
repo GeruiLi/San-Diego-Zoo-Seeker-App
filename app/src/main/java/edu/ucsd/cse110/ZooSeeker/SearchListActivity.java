@@ -18,6 +18,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.jgrapht.Graph;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +50,7 @@ public class SearchListActivity extends AppCompatActivity {
     // ZooData maps and graphs
     public static Map<String, ZooData.VertexInfo> vertexInfoMap;
     public static Map<String, ZooData.EdgeInfo> edgeInfoMap;
+    public static Graph<String, IdentifiedWeightedEdge> graphInfoMap;
 
     // Map that maps exhibit id to exhibit name <name, id>
     public static Map<String, String> nameToIDMap;
@@ -69,6 +72,7 @@ public class SearchListActivity extends AppCompatActivity {
 
         //not going to use the graph yet for the searching function
         //Graph<String, IdentifiedWeightedEdge> graphInfoMap = ZooData.loadZooGraphJSON(this,"sample_zoo_graph.json");
+        graphInfoMap = ZooData.loadZooGraphJSON(this,"sample_zoo_graph.json");
         //Map<id, VertexInfo>
         vertexInfoMap = ZooData.loadVertexInfoJSON(this,"sample_node_info.json");
         edgeInfoMap = ZooData.loadEdgeInfoJSON(this,"sample_edge_info.json");

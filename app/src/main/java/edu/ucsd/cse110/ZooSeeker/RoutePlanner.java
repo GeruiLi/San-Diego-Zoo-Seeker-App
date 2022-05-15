@@ -1,11 +1,15 @@
 package edu.ucsd.cse110.ZooSeeker;
 
+import edu.ucsd.cse110.ZooSeeker.SearchListActivity;
+
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.graphInfoMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.nameToIDMap;
 
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,22 +17,17 @@ import java.util.Map;
 public class RoutePlanner {
     public List<String> route;
 
-    Graph<String, IdentifiedWeightedEdge> graphInfoMap;
-    public Map<String, ZooData.VertexInfo> vertexInfoMap;
-    public Map<String, ZooData.EdgeInfo> edgeInfoMap;
+    //Graph<String, IdentifiedWeightedEdge> graphInfoMap;
+    //public Map<String, ZooData.VertexInfo> vertexInfoMap;
+    //public Map<String, ZooData.EdgeInfo> edgeInfoMap;
 
-    public List<String> userPlan;
+    public List<String> userPlan = new ArrayList<String>();
     public String start = "entrance_exit_gate";
     //initialize idToNameMap
 
 
 
-    public RoutePlanner(Graph<String, IdentifiedWeightedEdge> graphInfoMap, Map<String, ZooData.VertexInfo> vertexInfoMap,
-                        Map<String, ZooData.EdgeInfo> edgeInfoMap, List<String> userPlan) {
-        this.graphInfoMap = graphInfoMap;
-        this.vertexInfoMap = vertexInfoMap;
-        this.edgeInfoMap = edgeInfoMap;
-
+    public RoutePlanner(List<String> userPlan) {
         for(String exhibit : userPlan){
             this.userPlan.add(nameToIDMap.get(exhibit));
         }
@@ -52,20 +51,17 @@ public class RoutePlanner {
                 }
             }
 
-            List<IdentifiedWeightedEdge> edgeList = shortestPath.getEdgeList();
-
-            //route.add(nameToIDMap.get(start));
-            for (IdentifiedWeightedEdge exhibit : edgeList) {  // exhibit is id, add all exhibit to route
-                route.add(nameToIDMap.get(graphInfoMap.getEdgeSource(exhibit)));
+            for (IdentifiedWeightedEdge e : shortestPath.getEdgeList()) {
+                route.add(graphInfoMap.getEdgeSource(e));
             }
-           // route.add(nameToIDMap.get(end));
+
             start = end;
             userPlan.remove(end);
         }
-        route.add(nameToIDMap.get(end));
+        route.add(end);
     }
 
-    List<String> getRoute() {
+    public List<String> getRoute() {
         return route;
     }
 }
