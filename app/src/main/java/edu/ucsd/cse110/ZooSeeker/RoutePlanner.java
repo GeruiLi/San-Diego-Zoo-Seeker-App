@@ -51,9 +51,13 @@ public class RoutePlanner {
                 }
             }
 
+            /*
             for (IdentifiedWeightedEdge e : shortestPath.getEdgeList()) {
                 route.add(graphInfoMap.getEdgeSource(e));
             }
+            */
+
+            route.add(start);
 
             start = end;
             userPlan.remove(end);
