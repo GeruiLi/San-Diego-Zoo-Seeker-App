@@ -38,25 +38,28 @@ public class DirectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_direction);
 
-        current = 0;
-        index = sortedID.size();
-        this.cur = ZooData.findGate(vertexInfoMap);
-        this.nxt = sortedID.get(current);
-        current++;
+        if(sortedID != null){
+            current = 0;
+            index = sortedID.size();
+            this.cur = ZooData.findGate(vertexInfoMap);
+            this.nxt = sortedID.get(current);
+            current++;
 
-        String firstDirection = FindDirection.printPath(cur ,nxt);
+            String firstDirection = FindDirection.printPath(cur ,nxt);
 
-        TextView directionText = findViewById(R.id.direction_inf);
-        directionText.setText(firstDirection);
+            TextView directionText = findViewById(R.id.direction_inf);
+            directionText.setText(firstDirection);
 
-        TextView distanceText = findViewById(R.id.distance_inf);
-        String next = FindDirection.printDistance(cur ,nxt);
-        distanceText.setText(next);
-        this.cur = this.nxt;
+            TextView distanceText = findViewById(R.id.distance_inf);
+            String next = FindDirection.printDistance(cur ,nxt);
+            distanceText.setText(next);
+            this.cur = this.nxt;
+        }
+
     }
 
     public void NextClicked(View view) {
-        if(current <= index){
+        if(sortedID != null && current <= index){
             this.nxt = sortedID.get(current);
 
             String direction = FindDirection.printPath(cur ,nxt);
