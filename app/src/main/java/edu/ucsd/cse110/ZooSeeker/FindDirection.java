@@ -39,7 +39,7 @@ public class FindDirection {
             weight += graphInfoMap.getEdgeWeight(e);
         }
 
-        String rlt = IDToNameMap.get(goal) + ", " + (int)weight + " away.";
+        String rlt = IDToNameMap.get(goal) + ", " + (int)weight + " feet away.";
 
         return rlt;
     }

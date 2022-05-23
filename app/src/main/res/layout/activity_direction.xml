@@ -31,7 +31,7 @@
 
     <TextView
         android:id="@+id/distance_inf"
-        android:layout_width="252dp"
+        android:layout_width="178dp"
         android:layout_height="52dp"
         android:layout_marginEnd="68dp"
         android:layout_marginBottom="13dp"
