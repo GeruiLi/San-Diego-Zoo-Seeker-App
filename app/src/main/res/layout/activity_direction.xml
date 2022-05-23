@@ -7,12 +7,12 @@
 
     <TextView
         android:id="@+id/direction_inf"
-        android:layout_width="251dp"
-        android:layout_height="138dp"
+        android:layout_width="286dp"
+        android:layout_height="443dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="184dp"
+        android:layout_marginTop="40dp"
         android:layout_marginEnd="8dp"
-        android:textSize="32dp"
+        android:textSize="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -31,8 +31,8 @@
 
     <TextView
         android:id="@+id/distance_inf"
-        android:layout_width="276dp"
-        android:layout_height="47dp"
+        android:layout_width="252dp"
+        android:layout_height="52dp"
         android:layout_marginEnd="68dp"
         android:layout_marginBottom="13dp"
         android:textSize="16dp"

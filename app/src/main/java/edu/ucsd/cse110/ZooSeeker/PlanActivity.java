@@ -12,37 +12,49 @@ import android.widget.TextView;
 
 import org.jgrapht.Graph;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.IDToNameMap;
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.distance;
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.sortedID;
+
 
 public class PlanActivity extends AppCompatActivity {
 
+    private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
+    private Future<Void> future;
+
     public RecyclerView recyclerView;
+    private List<String> exhibitNames;
+    private PlanListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plan);
 
-        ExhibitListItemDao dao;
-        ExhibitTodoDatabase db;
-
-        Context context = getApplication().getApplicationContext();
-        db = ExhibitTodoDatabase.getSingleton(context);
-        dao = db.exhibitListItemDao();
-
-        List<ExhibitListItem> exhibitListItems = dao.getAll();
-        List<String> distance = Collections.emptyList();
-
-        PlanListAdapter adapter = new PlanListAdapter();
+        adapter = new PlanListAdapter();
         adapter.setHasStableIds(true);
+
+        exhibitNames = new ArrayList<>();
 
         recyclerView = findViewById(R.id.plan_items);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        adapter.setPlanListItems(exhibitListItems);
-        adapter.setDistance(distance);
+        for(String s : sortedID){
+            exhibitNames.add(IDToNameMap.get(s));
+        }
+
+        adapter.setPlanListItems(exhibitNames);
+
+
     }
 
     public void DirectionClicked(View view) {

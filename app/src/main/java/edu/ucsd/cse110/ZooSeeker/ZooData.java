@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 
 import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
+import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultUndirectedWeightedGraph;
 import org.jgrapht.nio.json.JSONImporter;
 
@@ -39,6 +41,18 @@ public class ZooData {
     public static class EdgeInfo {
         public String id;
         public String street;
+    }
+
+    public static String findGate(Map<String, ZooData.VertexInfo> vertexInfoMap){
+        ZooData.VertexInfo exhibitInfo;
+        for (String key : vertexInfoMap.keySet()) {
+            exhibitInfo = vertexInfoMap.get(key);
+            //if this vertex is an exhibit, add it to animalExhibitList
+            if (exhibitInfo.kind == ZooData.VertexInfo.Kind.GATE) {
+                return exhibitInfo.id;
+            }
+        }
+        return "";
     }
 
     public static Map<String, VertexInfo> loadVertexInfoJSON(Context context, String path) {

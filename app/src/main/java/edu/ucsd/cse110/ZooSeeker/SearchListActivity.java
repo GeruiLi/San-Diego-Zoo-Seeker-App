@@ -21,9 +21,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.jgrapht.Graph;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class SearchListActivity extends AppCompatActivity {
     public static final String SELECTED_TOTAL = "# of Exhibits Selected :";
@@ -54,12 +58,19 @@ public class SearchListActivity extends AppCompatActivity {
 
     // Map that maps exhibit id to exhibit name <name, id>
     public static Map<String, String> nameToIDMap;
+    public static Map<String, String> IDToNameMap;
+
+    public static List<String> sortedID;
+    public static List<String> distance;
 
     // String that store the selectedExhibit
     private String selectedExhibit;
 
     // ArrayList<String> that store all selected exhibits
-    private ArrayList<String> selectedExhibitList;
+    private List<String> selectedExhibitList;
+
+    private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
+    private Future<List<String>> future;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +90,10 @@ public class SearchListActivity extends AppCompatActivity {
 
         //initialize idToNameMap
         nameToIDMap = new HashMap<>();
+        IDToNameMap = new HashMap<>();
+        sortedID = Collections.emptyList();
+        distance = Collections.emptyList();
+        selectedExhibitList = new ArrayList<>();
 
         /*
         Section for search bar
@@ -102,6 +117,7 @@ public class SearchListActivity extends AppCompatActivity {
             if (exhibitInfo.kind == ZooData.VertexInfo.Kind.EXHIBIT) {
                 animalExhibitList.add(exhibitInfo.name);
                 nameToIDMap.put(exhibitInfo.name, exhibitInfo.id);
+                IDToNameMap.put(exhibitInfo.id, exhibitInfo.name);
             }
         }
 
@@ -121,7 +137,6 @@ public class SearchListActivity extends AppCompatActivity {
 
                 //Get data from Dao and update total selected count
                 exhibitListItems = exhibitListItemDao.getAll();
-                selectedExhibitList = new ArrayList<>();
 
                 for (ExhibitListItem item : exhibitListItems) {
                     selectedExhibitList.add(item.exhibitName);
@@ -226,14 +241,18 @@ public class SearchListActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-
         //Get data from Dao and update total selected count
         exhibitListItems = exhibitListItemDao.getAll();
+
         exhibitCountTextView.setText(SELECTED_TOTAL + " " + exhibitListItems.size());
     }
 
     public void onLaunchPlanClicked(View view) {
-        Intent intent = new Intent(this,PlanActivity.class);
+        RoutePlanner planner = new RoutePlanner(exhibitListItems);
+        sortedID = planner.getRoute();
+        distance = planner.getDistance();
+
+        Intent intent = new Intent(this, PlanActivity.class);
         startActivity(intent);
     }
 }

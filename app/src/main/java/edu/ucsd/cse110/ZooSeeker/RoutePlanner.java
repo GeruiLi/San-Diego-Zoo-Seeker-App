@@ -4,68 +4,77 @@ import edu.ucsd.cse110.ZooSeeker.SearchListActivity;
 
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.graphInfoMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.nameToIDMap;
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.vertexInfoMap;
+
+import androidx.annotation.NonNull;
 
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class RoutePlanner {
-    public List<String> route;
+    private List<String> route;
+    private List<String> distance;
 
-    //Graph<String, IdentifiedWeightedEdge> graphInfoMap;
-    //public Map<String, ZooData.VertexInfo> vertexInfoMap;
-    //public Map<String, ZooData.EdgeInfo> edgeInfoMap;
-
+    public DijkstraShortestPath path;
     public List<String> userPlan = new ArrayList<String>();
-    public String start = "entrance_exit_gate";
     //initialize idToNameMap
 
-
-
-    public RoutePlanner(List<String> userPlan) {
-        for(String exhibit : userPlan){
-            this.userPlan.add(nameToIDMap.get(exhibit));
+    public RoutePlanner(@NonNull List<ExhibitListItem> plan) {
+        for(ExhibitListItem exhibit : plan){
+            this.userPlan.add(nameToIDMap.get(exhibit.exhibitName));
         }
-
-        buildRoute();
+        route = new ArrayList<>();
+        distance = new ArrayList<>();
+        this.path = new DijkstraShortestPath(graphInfoMap);
+        buildRoute(this.userPlan);
     }
 
-    public void buildRoute() {
-        String end = "";
-        double distance = Double.MAX_VALUE;
-        GraphPath<String, IdentifiedWeightedEdge> path = null;
-        GraphPath<String, IdentifiedWeightedEdge> shortestPath = null;
+    public String findGate(Map<String, ZooData.VertexInfo> vertexInfoMap){
+        ZooData.VertexInfo exhibitInfo;
+        for (String key : vertexInfoMap.keySet()) {
+            exhibitInfo = vertexInfoMap.get(key);
+            //if this vertex is an exhibit, add it to animalExhibitList
+            if (exhibitInfo.kind == ZooData.VertexInfo.Kind.GATE) {
+                return exhibitInfo.id;
+            }
+        }
+        return "";
+    }
 
-        while (!userPlan.isEmpty()) {
-            for (String exhibit : userPlan) {
-                path = DijkstraShortestPath.findPathBetween(graphInfoMap, start, exhibit);
-                if (path.getWeight() < distance) {
-                    distance = path.getWeight();
-                    shortestPath = path;
-                    end = exhibit;
+    public void buildRoute(List<String> userPlan) {
+        String current = findGate(vertexInfoMap);
+        while(userPlan.size() != 0){
+            double min = Double.MAX_VALUE;
+            String shortest = "";
+            for(String id : userPlan){
+                if(min > path.getPathWeight(current,id)){
+                    shortest = id;
+                    min = path.getPathWeight(current,id);
                 }
             }
-
-            /*
-            for (IdentifiedWeightedEdge e : shortestPath.getEdgeList()) {
-                route.add(graphInfoMap.getEdgeSource(e));
-            }
-            */
-
-            route.add(start);
-
-            start = end;
-            userPlan.remove(end);
+            route.add(shortest);
+            userPlan.remove(shortest);
+            current = shortest;
         }
-        route.add(end);
     }
 
     public List<String> getRoute() {
-        return route;
+        return this.route;
+    }
+
+    public List<String> getDistance(){
+        String gate = findGate(vertexInfoMap);
+        for(String s : route){
+            double min = path.getPathWeight(gate, s);
+            distance.add(Double.toString(min) + " feet");
+        }
+        return this.distance;
     }
 }
