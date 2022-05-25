@@ -28,6 +28,7 @@ public class DirectionActivity extends AppCompatActivity {
     private List<ExhibitListItem> exhibitListItems;
     private String cur;
     private String nxt;
+    private String gate;
 
     private ExhibitListItemDao dao;
     private ExhibitTodoDatabase db;
@@ -38,20 +39,22 @@ public class DirectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_direction);
 
+        gate = ZooData.findGate(vertexInfoMap);
+
         if(sortedID != null){
             current = 0;
             index = sortedID.size();
-            this.cur = ZooData.findGate(vertexInfoMap);
+            this.cur = gate;
             this.nxt = sortedID.get(current);
             current++;
 
-            String firstDirection = FindDirection.printPath(cur ,nxt);
+            String firstDirection = FindDirection.printPath(cur, nxt);
 
             TextView directionText = findViewById(R.id.direction_inf);
             directionText.setText(firstDirection);
 
             TextView distanceText = findViewById(R.id.distance_inf);
-            String next = FindDirection.printDistance(cur ,nxt);
+            String next = FindDirection.printDistance(cur, nxt);
             distanceText.setText(next);
             this.cur = this.nxt;
         }
@@ -59,7 +62,7 @@ public class DirectionActivity extends AppCompatActivity {
     }
 
     public void NextClicked(View view) {
-        if(sortedID != null && current <= index){
+        if(sortedID != null && current < index){
             this.nxt = sortedID.get(current);
 
             String direction = FindDirection.printPath(cur ,nxt);
@@ -75,8 +78,46 @@ public class DirectionActivity extends AppCompatActivity {
             this.cur = this.nxt;
             current = current + 1;
         }
+        else if(sortedID != null && current == index){
+            this.nxt = gate;
+            String direction = FindDirection.printPath(cur ,nxt);
+
+            TextView directionText = findViewById(R.id.direction_inf);
+            directionText.setText(direction);
+
+            TextView distanceText = findViewById(R.id.distance_inf);
+
+            String next = FindDirection.printDistance(cur,nxt);
+
+            distanceText.setText(next);
+            this.cur = this.nxt;
+            current = current + 1;
+        }
         else{
             finish();
+        }
+    }
+
+    public void stepBackClicked(View view) {
+        if(current > 1){
+            current = current - 2;
+            this.nxt = sortedID.get(current);
+            if(current > 0){
+                this.cur = sortedID.get(current - 1);
+            }
+            else this.cur = gate;
+            String direction = FindDirection.printPath(cur,nxt);
+
+            TextView directionText = findViewById(R.id.direction_inf);
+            directionText.setText(direction);
+
+            TextView distanceText = findViewById(R.id.distance_inf);
+
+            String next = FindDirection.printDistance(cur,nxt);
+
+            distanceText.setText(next);
+            this.cur = this.nxt;
+            current = current + 1;
         }
     }
 }

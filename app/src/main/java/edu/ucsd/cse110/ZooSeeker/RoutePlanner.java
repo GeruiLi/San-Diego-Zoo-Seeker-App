@@ -21,6 +21,7 @@ import java.util.Map;
 public class RoutePlanner {
     private List<String> route;
     private List<String> distance;
+    private String gate;
 
     public DijkstraShortestPath path;
     public List<String> userPlan = new ArrayList<String>();
@@ -32,8 +33,9 @@ public class RoutePlanner {
         }
         route = new ArrayList<>();
         distance = new ArrayList<>();
+        this.gate = findGate(vertexInfoMap);
         this.path = new DijkstraShortestPath(graphInfoMap);
-        buildRoute(this.userPlan);
+        buildRoute(this.userPlan, gate);
     }
 
     public String findGate(Map<String, ZooData.VertexInfo> vertexInfoMap){
@@ -48,8 +50,9 @@ public class RoutePlanner {
         return "";
     }
 
-    public void buildRoute(List<String> userPlan) {
-        String current = findGate(vertexInfoMap);
+    public void buildRoute(List<String> userPlan, String current) {
+
+        double lastDis = 0;
         while(userPlan.size() != 0){
             double min = Double.MAX_VALUE;
             String shortest = "";
@@ -60,9 +63,13 @@ public class RoutePlanner {
                 }
             }
             route.add(shortest);
+
+            distance.add(Double.toString(min + lastDis) + " feet");
+            lastDis = min;
             userPlan.remove(shortest);
             current = shortest;
         }
+
     }
 
     public List<String> getRoute() {
@@ -70,11 +77,6 @@ public class RoutePlanner {
     }
 
     public List<String> getDistance(){
-        String gate = findGate(vertexInfoMap);
-        for(String s : route){
-            double min = path.getPathWeight(gate, s);
-            distance.add(Double.toString(min) + " feet");
-        }
         return this.distance;
     }
 }

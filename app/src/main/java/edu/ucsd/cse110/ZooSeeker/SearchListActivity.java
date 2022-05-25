@@ -114,10 +114,10 @@ public class SearchListActivity extends AppCompatActivity {
         for (String key : vertexInfoMap.keySet()) {
             exhibitInfo = vertexInfoMap.get(key);
             //if this vertex is an exhibit, add it to animalExhibitList
+            nameToIDMap.put(exhibitInfo.name, exhibitInfo.id);
+            IDToNameMap.put(exhibitInfo.id, exhibitInfo.name);
             if (exhibitInfo.kind == ZooData.VertexInfo.Kind.EXHIBIT) {
                 animalExhibitList.add(exhibitInfo.name);
-                nameToIDMap.put(exhibitInfo.name, exhibitInfo.id);
-                IDToNameMap.put(exhibitInfo.id, exhibitInfo.name);
             }
         }
 

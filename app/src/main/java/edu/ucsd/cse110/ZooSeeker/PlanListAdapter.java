@@ -41,7 +41,7 @@ public class PlanListAdapter extends RecyclerView.Adapter<PlanListAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull PlanListAdapter.ViewHolder holder, int position) {
-        holder.setTodoItem(planItems.get(position));
+        holder.setTodoItem(planItems.get(position), distance.get(position));
     }
 
     @Override
@@ -59,9 +59,9 @@ public class PlanListAdapter extends RecyclerView.Adapter<PlanListAdapter.ViewHo
             this.distance = itemView.findViewById(R.id.distance_text);
         }
 
-        public void setTodoItem(String planItem) {
+        public void setTodoItem(String planItem, String distance) {
             this.exhibitName.setText(planItem);
-            //this.distance.setText(distance);
+            this.distance.setText(distance);
         }
     }
 }
