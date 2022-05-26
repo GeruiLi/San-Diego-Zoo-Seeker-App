@@ -26,6 +26,12 @@ public interface ExhibitListItemDao {
     @Delete
     int delete(ExhibitListItem exhibitListItem);
 
+    //5/24 hao
+    //@Delete
+    //void deleteAll(List<ExhibitListItem> exhibitListItemList);
+    @Query("DELETE FROM exhibit_list_items")
+    void nukeTable();
+
     //Test1
     @Insert
     List<Long> insertAll(List<ExhibitListItem> exhibitListItem);

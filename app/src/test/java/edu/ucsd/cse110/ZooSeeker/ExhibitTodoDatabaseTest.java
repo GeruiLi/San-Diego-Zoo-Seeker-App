@@ -18,6 +18,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class ExhibitTodoDatabaseTest {
@@ -85,5 +88,30 @@ public class ExhibitTodoDatabaseTest {
         int itemsDeleted = dao.delete(item);
         assertEquals(1, itemsDeleted);
         assertNull(dao.get(id));
+    }
+
+    @Test
+    public void testNukeTable() {
+        ExhibitListItem item1 = new ExhibitListItem("Panda", false, 0);
+        ExhibitListItem item2 = new ExhibitListItem("Lion", false, 1);
+        ExhibitListItem item3 = new ExhibitListItem("Fox", false, 2);
+        ExhibitListItem item4 = new ExhibitListItem("Bird", false, 3);
+
+        long id1 = dao.insert(item1);
+        long id2 = dao.insert(item2);
+        long id3 = dao.insert(item3);
+        long id4 = dao.insert(item4);
+
+        dao.nukeTable();
+
+        ExhibitListItem getItem1 = dao.get(id1);
+        ExhibitListItem getItem2 = dao.get(id2);
+        ExhibitListItem getItem3 = dao.get(id3);
+        ExhibitListItem getItem4 = dao.get(id4);
+
+        assertNull(dao.get(id1));
+        assertNull(dao.get(id2));
+        assertNull(dao.get(id3));
+        assertNull(dao.get(id4));
     }
 }
