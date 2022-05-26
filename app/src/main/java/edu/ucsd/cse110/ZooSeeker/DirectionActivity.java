@@ -43,7 +43,10 @@ public class DirectionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_direction);
 
         Bundle extras = getIntent().getExtras();
-        isResume = extras.getBoolean("isResume");
+        if(extras != null)
+            isResume = extras.getBoolean("isResume");
+        else
+            isResume = false;
 
         gate = ZooData.findGate(vertexInfoMap);
 
