@@ -45,6 +45,7 @@ public class ZooData {
 
     public static String findGate(Map<String, ZooData.VertexInfo> vertexInfoMap){
         ZooData.VertexInfo exhibitInfo;
+        if(vertexInfoMap == null) return "";
         for (String key : vertexInfoMap.keySet()) {
             exhibitInfo = vertexInfoMap.get(key);
             //if this vertex is an exhibit, add it to animalExhibitList
