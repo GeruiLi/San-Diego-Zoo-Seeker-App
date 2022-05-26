@@ -5,7 +5,9 @@ import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.vertexInfoMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.sortedID;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.TextView;
 
@@ -21,6 +23,7 @@ import java.util.Map;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.graphInfoMap;
 
 public class DirectionActivity extends AppCompatActivity {
+    private boolean isResume;
     private int index;
     private int current;
     private Graph<String, IdentifiedWeightedEdge> graphInfoMap;
@@ -39,12 +42,16 @@ public class DirectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_direction);
 
+        Bundle extras = getIntent().getExtras();
+        isResume = extras.getBoolean("isResume");
+
         gate = ZooData.findGate(vertexInfoMap);
 
         if(sortedID != null){
-            current = 0;
+            if(!isResume) PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit();
+
             index = sortedID.size();
-            this.cur = gate;
+            load();
             this.nxt = sortedID.get(current);
             current++;
 
@@ -63,6 +70,8 @@ public class DirectionActivity extends AppCompatActivity {
 
     public void NextClicked(View view) {
         if(sortedID != null && current < index){
+            save();
+
             this.nxt = sortedID.get(current);
 
             String direction = FindDirection.printPath(cur ,nxt);
@@ -79,6 +88,8 @@ public class DirectionActivity extends AppCompatActivity {
             current = current + 1;
         }
         else if(sortedID != null && current == index){
+            save();
+
             this.nxt = gate;
             String direction = FindDirection.printPath(cur ,nxt);
 
@@ -94,6 +105,7 @@ public class DirectionActivity extends AppCompatActivity {
             current = current + 1;
         }
         else{
+            PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit();
             finish();
         }
     }
@@ -106,6 +118,9 @@ public class DirectionActivity extends AppCompatActivity {
                 this.cur = sortedID.get(current - 1);
             }
             else this.cur = gate;
+
+            save();
+
             String direction = FindDirection.printPath(cur,nxt);
 
             TextView directionText = findViewById(R.id.direction_inf);
@@ -118,6 +133,24 @@ public class DirectionActivity extends AppCompatActivity {
             distanceText.setText(next);
             this.cur = this.nxt;
             current = current + 1;
+
         }
+    }
+
+    public void load() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);//this.getPreferences(MODE_PRIVATE);
+
+        current = preferences.getInt("current",0);
+        cur = preferences.getString("cur", gate);
+    }
+
+    public void save() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putInt("current", current);
+        editor.putString("cur", cur);
+
+        editor.apply();
     }
 }

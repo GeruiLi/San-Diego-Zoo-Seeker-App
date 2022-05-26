@@ -255,4 +255,20 @@ public class SearchListActivity extends AppCompatActivity {
         Intent intent = new Intent(this, PlanActivity.class);
         startActivity(intent);
     }
+
+    public void onLaunchResumeClicked(View view) {
+        if(exhibitListItems.isEmpty()) {
+            // display error message
+            Utilities.showAlert(this,"You have no plan in progress");
+        }
+        else {
+            RoutePlanner planner = new RoutePlanner(exhibitListItems);
+            sortedID = planner.getRoute();
+            distance = planner.getDistance();
+
+            Intent intent = new Intent(this, DirectionActivity.class);
+            intent.putExtra("isResume", true);
+            startActivity(intent);
+        }
+    }
 }

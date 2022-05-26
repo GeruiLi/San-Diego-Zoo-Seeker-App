@@ -59,6 +59,7 @@ public class PlanActivity extends AppCompatActivity {
 
     public void DirectionClicked(View view) {
         Intent intent = new Intent(this, DirectionActivity.class);
+        intent.putExtra("isResume",false);
         finish();
         startActivity(intent);
     }
