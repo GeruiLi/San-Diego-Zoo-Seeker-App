@@ -62,14 +62,17 @@ public class SearchListActivity extends AppCompatActivity {
     public static Map<String, String> nameToIDMap;
     public static Map<String, String> IDToNameMap;
 
+    //exhibit name => parent id map
+    public static Map<String, String> nameToParentIDMap;
+
+    // Map exhibits that have parents to their parent exhibit
+    public Map<String, String> exhibitToGroup;
+
     public static List<String> sortedID;
     public static List<String> distance;
 
     // ArrayList<String> that store all selected exhibits
     public static List<String> selectedExhibitList;
-
-    // Map exhibits that have parents to their parent exhibit
-    public Map<String, String> exhibitToGroup;
 
     // String that store the selectedExhibit
     private String selectedExhibit;
@@ -103,6 +106,8 @@ public class SearchListActivity extends AppCompatActivity {
         //initialize exhibitToGroup map
         exhibitToGroup = new HashMap<>();
 
+        nameToParentIDMap = new HashMap<>();
+
         /*
         Section for search bar
          */
@@ -125,6 +130,7 @@ public class SearchListActivity extends AppCompatActivity {
             nameToIDMap.put(exhibitInfo.name, exhibitInfo.id);
             IDToNameMap.put(exhibitInfo.id, exhibitInfo.name);
 
+            /*
             //initialize exhibitToGroup map
             if (exhibitInfo.hasGroup()) {
                 parentExhibit = vertexInfoMap.get( exhibitInfo.parent_id );
@@ -133,6 +139,16 @@ public class SearchListActivity extends AppCompatActivity {
             else {
                 exhibitToGroup.put(exhibitInfo.name, exhibitInfo.name);
             }
+            */
+
+            //initialize exhibitToGroup map
+            if (exhibitInfo.hasGroup()) {
+                nameToParentIDMap.put(exhibitInfo.name, exhibitInfo.parent_id);
+            }
+            else {
+                nameToParentIDMap.put(exhibitInfo.name, exhibitInfo.id);
+            }
+
 
             if (exhibitInfo.kind == ZooData.VertexInfo.Kind.EXHIBIT) {
                 animalExhibitList.add(exhibitInfo.name);
@@ -160,7 +176,7 @@ public class SearchListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedExhibit = (String) parent.getItemAtPosition(position);
-                selectedExhibit = exhibitToGroup.get(selectedExhibit);
+                //selectedExhibit = nameToParentIDMap.get(selectedExhibit);
 
                 //Get data from Dao and update total selected count
                 exhibitListItems = exhibitListItemDao.getAll();
