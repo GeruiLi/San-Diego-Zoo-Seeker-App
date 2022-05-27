@@ -65,14 +65,14 @@ public class SearchListActivity extends AppCompatActivity {
     public static List<String> sortedID;
     public static List<String> distance;
 
+    // ArrayList<String> that store all selected exhibits
+    public static List<String> selectedExhibitList;
+
     // Map exhibits that have parents to their parent exhibit
     public Map<String, String> exhibitToGroup;
 
     // String that store the selectedExhibit
     private String selectedExhibit;
-
-    // ArrayList<String> that store all selected exhibits
-    private List<String> selectedExhibitList;
 
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<List<String>> future;

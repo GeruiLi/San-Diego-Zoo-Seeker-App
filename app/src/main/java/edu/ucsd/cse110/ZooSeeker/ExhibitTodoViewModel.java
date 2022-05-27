@@ -60,5 +60,6 @@ public class ExhibitTodoViewModel extends AndroidViewModel {
 
     public void setDeleted(ExhibitListItem exhibitListItem){
         exhibitListItemDao.delete(exhibitListItem);
+        selectedExhibitList.remove(exhibitListItem.exhibitName);
     }
 }
