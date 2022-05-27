@@ -143,8 +143,12 @@ public class DirectionActivity extends AppCompatActivity {
     public void load() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);//this.getPreferences(MODE_PRIVATE);
 
+        //Future connect to real location
+        //Current version is hardcode
+        String realLocation = gate;
+
         current = preferences.getInt("current",0);
-        cur = preferences.getString("cur", gate);
+        cur = preferences.getString("cur", realLocation);
     }
 
     public void save() {
