@@ -19,7 +19,7 @@ public class PermissionChecker {
         this.activity = activity;
         requestPermissionLauncher = activity.registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), perms -> {
             perms.forEach((perm, isGranted) -> {
-                Log.i("LAB7", String.format("Permission %s granted: %s", perm, isGranted));
+                Log.i("APP", String.format("Permission %s granted: %s", perm, isGranted));
             });
         });
     }
