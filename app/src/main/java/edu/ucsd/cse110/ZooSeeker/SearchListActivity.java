@@ -2,6 +2,7 @@ package edu.ucsd.cse110.ZooSeeker;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -63,6 +65,9 @@ public class SearchListActivity extends AppCompatActivity {
     public static List<String> sortedID;
     public static List<String> distance;
 
+    // Map exhibits that have parents to their parent exhibit
+    public Map<String, String> exhibitToGroup;
+
     // String that store the selectedExhibit
     private String selectedExhibit;
 
@@ -83,10 +88,10 @@ public class SearchListActivity extends AppCompatActivity {
 
         //not going to use the graph yet for the searching function
         //Graph<String, IdentifiedWeightedEdge> graphInfoMap = ZooData.loadZooGraphJSON(this,"sample_zoo_graph.json");
-        graphInfoMap = ZooData.loadZooGraphJSON(this,"sample_zoo_graph.json");
+        graphInfoMap = ZooData.loadZooGraphJSON(this,"new_zoo_graph.json");
         //Map<id, VertexInfo>
-        vertexInfoMap = ZooData.loadVertexInfoJSON(this,"sample_node_info.json");
-        edgeInfoMap = ZooData.loadEdgeInfoJSON(this,"sample_edge_info.json");
+        vertexInfoMap = ZooData.loadVertexInfoJSON(this,"new_node_info.json");
+        edgeInfoMap = ZooData.loadEdgeInfoJSON(this,"new_edge_info.json");
 
         //initialize idToNameMap
         nameToIDMap = new HashMap<>();
@@ -94,6 +99,9 @@ public class SearchListActivity extends AppCompatActivity {
         sortedID = Collections.emptyList();
         distance = Collections.emptyList();
         selectedExhibitList = new ArrayList<>();
+
+        //initialize exhibitToGroup map
+        exhibitToGroup = new HashMap<>();
 
         /*
         Section for search bar
@@ -109,17 +117,35 @@ public class SearchListActivity extends AppCompatActivity {
         exhibitCountTextView = (TextView) findViewById(R.id.exhibitListIndicator);
 
         //Filter out all the exhibits into the animalExhibitList
-        ZooData.VertexInfo exhibitInfo;
+        ZooData.VertexInfo exhibitInfo, parentExhibit;
         //interate through the vertex map using the keys (id) of vertexInfoMap
         for (String key : vertexInfoMap.keySet()) {
             exhibitInfo = vertexInfoMap.get(key);
             //if this vertex is an exhibit, add it to animalExhibitList
             nameToIDMap.put(exhibitInfo.name, exhibitInfo.id);
             IDToNameMap.put(exhibitInfo.id, exhibitInfo.name);
+
+            //initialize exhibitToGroup map
+            if (exhibitInfo.hasGroup()) {
+                parentExhibit = vertexInfoMap.get( exhibitInfo.parent_id );
+                exhibitToGroup.put(exhibitInfo.name, parentExhibit.name);
+            }
+            else {
+                exhibitToGroup.put(exhibitInfo.name, exhibitInfo.name);
+            }
+
             if (exhibitInfo.kind == ZooData.VertexInfo.Kind.EXHIBIT) {
                 animalExhibitList.add(exhibitInfo.name);
             }
         }
+
+        /*
+        Set<String> keys = vertexInfoMap.keySet();
+        String key;
+        for (int i = 0; i < keys.size(); i++) {
+            key = keys.
+        }
+        */
 
         //Set adapter to searchedListView
         pullDownMenuArrayAdapter
@@ -134,6 +160,7 @@ public class SearchListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedExhibit = (String) parent.getItemAtPosition(position);
+                selectedExhibit = exhibitToGroup.get(selectedExhibit);
 
                 //Get data from Dao and update total selected count
                 exhibitListItems = exhibitListItemDao.getAll();
