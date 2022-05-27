@@ -1,17 +1,26 @@
 package edu.ucsd.cse110.ZooSeeker;
 
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.curLocation;
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.testLong;
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.testLati;
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.fusedLocationClient;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.nameToIDMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.vertexInfoMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.sortedID;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
@@ -21,6 +30,9 @@ import java.util.List;
 import java.util.Map;
 
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.graphInfoMap;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 public class DirectionActivity extends AppCompatActivity {
     private boolean isResume;
@@ -37,6 +49,7 @@ public class DirectionActivity extends AppCompatActivity {
     private ExhibitTodoDatabase db;
 
 
+    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

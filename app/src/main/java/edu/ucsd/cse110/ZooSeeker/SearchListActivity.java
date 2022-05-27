@@ -1,6 +1,9 @@
 package edu.ucsd.cse110.ZooSeeker;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -15,9 +18,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.jgrapht.Graph;
 
@@ -80,6 +88,13 @@ public class SearchListActivity extends AppCompatActivity {
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<List<String>> future;
 
+    //Create location services client
+    public static FusedLocationProviderClient fusedLocationClient;
+    public static Location curLocation;
+
+    public static String testLong;
+    public static String testLati;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +103,12 @@ public class SearchListActivity extends AppCompatActivity {
         /*
         Section for vertex/edge/graph info
          */
+
+        //Create location services client
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        //update cur location
+        if (updateLocation()) return;
 
         //not going to use the graph yet for the searching function
         //Graph<String, IdentifiedWeightedEdge> graphInfoMap = ZooData.loadZooGraphJSON(this,"sample_zoo_graph.json");
@@ -220,6 +241,26 @@ public class SearchListActivity extends AppCompatActivity {
          */
 
         findViewById(R.id.plan_btn).setOnClickListener(this::onLaunchPlanClicked);
+    }
+
+    private boolean updateLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return true;
+        }
+
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            curLocation = location;
+                            testLong = "" + curLocation.getLongitude();
+                            testLati = "" + curLocation.getLatitude();
+                        }
+                    }
+                });
+        return false;
     }
 
     /*
