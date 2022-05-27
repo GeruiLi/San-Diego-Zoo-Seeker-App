@@ -29,10 +29,16 @@ public class ZooData {
             // from the strings in our JSON to this Enum.
             @SerializedName("gate") GATE,
             @SerializedName("exhibit") EXHIBIT, 
-            @SerializedName("intersection") INTERSECTION
+            @SerializedName("intersection") INTERSECTION,
+            @SerializedName("exhibit_group") EXHIBIT_GROUP
+        }
+
+        public boolean hasGroup() {
+            return parent_id != null;
         }
 
         public String id;
+        public String parent_id;
         public Kind kind;
         public String name;
         public List<String> tags;
@@ -48,7 +54,7 @@ public class ZooData {
         if(vertexInfoMap == null) return "";
         for (String key : vertexInfoMap.keySet()) {
             exhibitInfo = vertexInfoMap.get(key);
-            //if this vertex is an exhibit, add it to animalExhibitList
+            //find the gate's id
             if (exhibitInfo.kind == ZooData.VertexInfo.Kind.GATE) {
                 return exhibitInfo.id;
             }
