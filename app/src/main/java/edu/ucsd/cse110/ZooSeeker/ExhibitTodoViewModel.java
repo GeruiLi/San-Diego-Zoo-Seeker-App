@@ -4,6 +4,7 @@ import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.*;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -53,13 +54,18 @@ public class ExhibitTodoViewModel extends AndroidViewModel {
         ExhibitListItem newItem = new ExhibitListItem(text,false, endOfListOrder);
         exhibitListItemDao.insert(newItem);
 
+        //Add new entry to the selectedExhibitList
+        selectedExhibitList.add(text);
+
         //Get data from Dao and update total selected count
         exhibitListItems = exhibitListItemDao.getAll();
         exhibitCountTextView.setText(SELECTED_TOTAL + " " + exhibitListItems.size());
     }
 
     public void setDeleted(ExhibitListItem exhibitListItem){
+
         exhibitListItemDao.delete(exhibitListItem);
         selectedExhibitList.remove(exhibitListItem.exhibitName);
+
     }
 }

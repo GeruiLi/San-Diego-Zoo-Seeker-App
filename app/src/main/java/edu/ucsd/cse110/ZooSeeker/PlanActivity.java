@@ -54,7 +54,6 @@ public class PlanActivity extends AppCompatActivity {
 
         adapter.setPlanListItems(exhibitNames);
         adapter.setDistance(distance);
-
     }
 
     public void DirectionClicked(View view) {

@@ -126,7 +126,6 @@ public class SearchListActivity extends AppCompatActivity {
 
         //initialize exhibitToGroup map
         exhibitToGroup = new HashMap<>();
-
         nameToParentIDMap = new HashMap<>();
 
         /*
@@ -198,13 +197,6 @@ public class SearchListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedExhibit = (String) parent.getItemAtPosition(position);
                 //selectedExhibit = nameToParentIDMap.get(selectedExhibit);
-
-                //Get data from Dao and update total selected count
-                exhibitListItems = exhibitListItemDao.getAll();
-
-                for (ExhibitListItem item : exhibitListItems) {
-                    selectedExhibitList.add(item.exhibitName);
-                }
 
                 if (!selectedExhibitList.contains(selectedExhibit)) {
                     exhibitTodoViewModel.createTodo(selectedExhibit);
@@ -327,8 +319,12 @@ public class SearchListActivity extends AppCompatActivity {
         super.onResume();
         //Get data from Dao and update total selected count
         exhibitListItems = exhibitListItemDao.getAll();
-
         exhibitCountTextView.setText(SELECTED_TOTAL + " " + exhibitListItems.size());
+
+        //Add data to selectedExhibitList after resume
+        for (ExhibitListItem item : exhibitListItems) {
+            selectedExhibitList.add(item.exhibitName);
+        }
     }
 
     public void onLaunchPlanClicked(View view) {
