@@ -42,7 +42,6 @@ public class FindDirection {
     public static String printDistance(String start, String goal){
         GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(graphInfoMap, start, goal);
 
-
         double weight = 0;
 
         for (IdentifiedWeightedEdge e : path.getEdgeList()) {
@@ -56,35 +55,42 @@ public class FindDirection {
     
     public static String findNearestExhibitID() {
         String result = "";
-        //String hardcode = "entrance_exit_gate";
+        double min = Integer.MAX_VALUE;
 
         // Todo: 监视（call这个function，如果result！= cur 弹提示框问点不点，
         // TOdo: 按了replan就改变cur to result） + 提示框 + replan button
 
-        Location tempLo = null;
-
-        double max = -1;
-
+        //loop to get the shortest one from all the node
         for( String key : vertexInfoMap.keySet() ){
             ZooData.VertexInfo exhibitInfo = vertexInfoMap.get(key);
-
             Location endPoint=new Location(exhibitInfo.id);
             endPoint.setLatitude(exhibitInfo.lat);
             endPoint.setLongitude(exhibitInfo.lng);
 
+            //test
+            {
+                //    "lat": 32.74505139995802,
+                //    "lng": -117.15794384136309
+                //TEST flamingo
+
+                Location testPoint = new Location("TEST");
+                testPoint.setLatitude(32.746302644092815);
+                testPoint.setLongitude(-117.15794384136309);
+
+                /* "lat": 32.746302644092815,
+                "lng": -117.16659525430192*/
+
+                //double distance=testPoint.distanceTo(endPoint);
+            }
+
+            //calculate shortest one and record, return it
             double distance=curLocation.distanceTo(endPoint);
-            if(distance > max){
-                max = distance;
+            if(distance < min){
+                min = distance;
                 System.out.println(result);
                 result = exhibitInfo.name;
             }
         }
-
         return result;
-
     }
-
-
-
-
 }
