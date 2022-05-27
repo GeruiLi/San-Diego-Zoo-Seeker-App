@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
+    private final PermissionChecker permissionChecker = new PermissionChecker(this);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -14,5 +16,6 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, SearchListActivity.class);
         startActivity(intent);
+        if (permissionChecker.ensurePermissions()) return;
     }
 }
