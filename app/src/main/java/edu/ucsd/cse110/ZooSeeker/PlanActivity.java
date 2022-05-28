@@ -39,12 +39,6 @@ public class PlanActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        String all = "{";
-        for (String e : selectedExhibitList) {
-            all += e + ", ";
-        }
-        Log.d("TEST", all + "}\n");
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plan);
 
