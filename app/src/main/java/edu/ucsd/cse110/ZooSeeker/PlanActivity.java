@@ -66,4 +66,10 @@ public class PlanActivity extends AppCompatActivity {
     public void ReturnClicked(View view) {
         finish();
     }
+
+    public void deleteAllClicked(View view) {
+        Utilities.deleteExhibitPlan();
+        setContentView(R.layout.activity_plan);
+    }
+
 }

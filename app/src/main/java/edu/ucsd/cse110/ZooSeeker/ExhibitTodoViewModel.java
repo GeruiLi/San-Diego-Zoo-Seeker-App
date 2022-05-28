@@ -48,14 +48,15 @@ public class ExhibitTodoViewModel extends AndroidViewModel {
         exhibitListItemDao.update(exhibitListItem);
     }
 
-    public void createTodo(String text) {
+    public void createTodo(String exhibitName) {
         int endOfListOrder = exhibitListItemDao.getOrderForAppend2();
         //int endOfListOrder = todoListItemDao.getOrderForAppend();
-        ExhibitListItem newItem = new ExhibitListItem(text,false, endOfListOrder);
+        ExhibitListItem newItem = new ExhibitListItem(exhibitName,false, endOfListOrder);
         exhibitListItemDao.insert(newItem);
+        nameToItemMap.put(exhibitName, newItem);
 
         //Add new entry to the selectedExhibitList
-        selectedExhibitList.add(text);
+        selectedExhibitList.add(exhibitName);
 
         //Get data from Dao and update total selected count
         exhibitListItems = exhibitListItemDao.getAll();
@@ -66,6 +67,7 @@ public class ExhibitTodoViewModel extends AndroidViewModel {
 
         exhibitListItemDao.delete(exhibitListItem);
         selectedExhibitList.remove(exhibitListItem.exhibitName);
+        nameToItemMap.remove(exhibitListItem);
 
     }
 }

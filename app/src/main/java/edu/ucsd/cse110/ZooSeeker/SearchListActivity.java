@@ -81,11 +81,14 @@ public class SearchListActivity extends AppCompatActivity {
     public static Map<String, String> nameToIDMap;
     public static Map<String, String> IDToNameMap;
 
-    //exhibit name => parent id map
+    // Exhibit name => parent id map
     public static Map<String, String> nameToParentIDMap;
 
     // Map exhibits that have parents to their parent exhibit
     public Map<String, String> exhibitToGroup;
+
+    // Map exhibit name to ExhibitListItem
+    public static Map<String, ExhibitListItem> nameToItemMap;
 
     public static List<String> sortedID;
     public static List<String> distance;
@@ -177,6 +180,9 @@ public class SearchListActivity extends AppCompatActivity {
         //initialize exhibitToGroup map
         exhibitToGroup = new HashMap<>();
         nameToParentIDMap = new HashMap<>();
+
+        //initialize nameToItemMap
+        nameToItemMap = new HashMap<>();
 
         /*
         Section for search bar
