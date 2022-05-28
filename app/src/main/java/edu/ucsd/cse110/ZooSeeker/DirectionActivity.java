@@ -164,8 +164,15 @@ public class DirectionActivity extends AppCompatActivity {
         }
     }
 
+    /*
+    Title: MainPresenter.java
+    Author: DylanLukes
+    Date: 27 May, 2021
+    Type: Android
+    Availability: https://github.com/CSE-110-Spring-2022/ZooData/blob/main/zoodata_demo/src/main/java/edu/ucsd/cse110/zoodata_demo/MainPresenter.java
+    */
     public void mockClicked(View view) {
-        // TODO: could define this layout in an XML and inflate it, instead of defining in code...
+
         var inputType = EditorInfo.TYPE_CLASS_NUMBER
                 | EditorInfo.TYPE_NUMBER_FLAG_SIGNED
                 | EditorInfo.TYPE_NUMBER_FLAG_DECIMAL;
@@ -198,7 +205,6 @@ public class DirectionActivity extends AppCompatActivity {
                     dialog.cancel();
                 });
         builder.show();
-
 
     }
 
