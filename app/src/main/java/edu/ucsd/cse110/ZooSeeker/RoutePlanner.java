@@ -2,8 +2,10 @@ package edu.ucsd.cse110.ZooSeeker;
 
 import edu.ucsd.cse110.ZooSeeker.SearchListActivity;
 
+import static edu.ucsd.cse110.ZooSeeker.DirectionActivity.currLocation;
+import static edu.ucsd.cse110.ZooSeeker.FindDirection.findNearestExhibitID;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.graphInfoMap;
-import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.nameToIDMap;
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.nameToParentIDMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.vertexInfoMap;
 
 import androidx.annotation.NonNull;
@@ -21,21 +23,28 @@ import java.util.Map;
 public class RoutePlanner {
     private List<String> route;
     private List<String> distance;
-    private String gate;
+    private String start;
 
     public DijkstraShortestPath path;
     public List<String> userPlan = new ArrayList<String>();
     //initialize idToNameMap
 
-    public RoutePlanner(@NonNull List<ExhibitListItem> plan) {
+    public RoutePlanner(List<ExhibitListItem> plan, Boolean rePlan) {
         for(ExhibitListItem exhibit : plan){
-            this.userPlan.add(nameToIDMap.get(exhibit.exhibitName));
+            this.userPlan.add(nameToParentIDMap.get(exhibit.exhibitName));
         }
         route = new ArrayList<>();
         distance = new ArrayList<>();
-        this.gate = findGate(vertexInfoMap);
+
+        if(!rePlan) {
+            this.start = findGate(vertexInfoMap);
+        }
+        else {
+            this.start = findNearestExhibitID(currLocation);
+        }
+
         this.path = new DijkstraShortestPath(graphInfoMap);
-        buildRoute(this.userPlan, gate);
+        buildRoute(this.userPlan, start);
     }
 
     public String findGate(Map<String, ZooData.VertexInfo> vertexInfoMap){

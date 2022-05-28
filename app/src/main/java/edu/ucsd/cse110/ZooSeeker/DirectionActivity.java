@@ -1,13 +1,7 @@
 package edu.ucsd.cse110.ZooSeeker;
 
 import static edu.ucsd.cse110.ZooSeeker.FindDirection.findNearestExhibitID;
-import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.curLocation;
-import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.testLong;
-import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.testLati;
-import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.fusedLocationClient;
-import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.nameToIDMap;
-import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.vertexInfoMap;
-import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.sortedID;
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.*;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -18,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -48,7 +43,6 @@ public class DirectionActivity extends AppCompatActivity {
     private int current;
     private Graph<String, IdentifiedWeightedEdge> graphInfoMap;
     private Map<String, ZooData.EdgeInfo> edgeInfoMap;
-    private List<ExhibitListItem> exhibitListItems;
     private String cur;
     private String nxt;
     private String gate;
@@ -175,12 +169,12 @@ public class DirectionActivity extends AppCompatActivity {
         final EditText latInput = new EditText(this);
         latInput.setInputType(inputType);
         latInput.setHint("Latitude");
-        latInput.setText("32.");
+        latInput.setText("32.746302644092815");
 
         final EditText lngInput = new EditText(this);
         lngInput.setInputType(inputType);
         lngInput.setHint("Longitude");
-        lngInput.setText("-117.");
+        lngInput.setText("-117.16659525430192");
 
         final LinearLayout layout = new LinearLayout(this);
         layout.setDividerPadding(8);
@@ -224,6 +218,46 @@ public class DirectionActivity extends AppCompatActivity {
                 //Todo : replan sth
                 .setPositiveButton("replan", (dialog2, which2) -> {
 
+                    /*
+                    String all = "{";
+                    for (String e : distance) {
+                        all += e + ", ";
+                    }
+                    Log.d("TEST", all + "}\n");
+
+                     */
+
+
+                    /*
+                    all = "{";
+                    for (String e : nameToParentIDMap.keySet()) {
+                        all += "(" + e + ", " + nameToParentIDMap.get(e) + ") ; ";
+                    }
+                    Log.d("TEST", all + "}\n");
+
+                     */
+
+
+                    //create a new routeplanner to contain the new route
+                    RoutePlanner newRoute = new RoutePlanner(exhibitListItems, true);
+                    sortedID = newRoute.getRoute();
+
+                    //show new directions
+                    TextView directionText = findViewById(R.id.direction_inf);
+                    directionText.setText(FindDirection.printPath(cur ,nxt));
+                    TextView distanceText = findViewById(R.id.distance_inf);
+                    distanceText.setText(FindDirection.printDistance(cur, nxt));
+
+
+
+                    /*
+                    all = "{";
+                    for (String e : distance) {
+                        all += e + ", ";
+                    }
+                    Log.d("TEST", all + "}\n");
+
+                     */
                 })
                 .setNegativeButton("Cancel", (dialog2, which2) -> {
                     dialog2.cancel();

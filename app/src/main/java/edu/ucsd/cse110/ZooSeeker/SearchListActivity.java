@@ -387,7 +387,7 @@ public class SearchListActivity extends AppCompatActivity {
     }
 
     public void onLaunchPlanClicked(View view) {
-        RoutePlanner planner = new RoutePlanner(exhibitListItems);
+        RoutePlanner planner = new RoutePlanner(exhibitListItems, false);
         sortedID = planner.getRoute();
         distance = planner.getDistance();
 
@@ -401,7 +401,7 @@ public class SearchListActivity extends AppCompatActivity {
             Utilities.showAlert(this,"You have no plan in progress");
         }
         else {
-            RoutePlanner planner = new RoutePlanner(exhibitListItems);
+            RoutePlanner planner = new RoutePlanner(exhibitListItems, false);
             sortedID = planner.getRoute();
             distance = planner.getDistance();
 

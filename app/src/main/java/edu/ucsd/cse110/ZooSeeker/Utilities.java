@@ -48,6 +48,5 @@ public class Utilities {
         all += "}";
 
         Log.d("TEST", all + "\n");
-
     }
 }

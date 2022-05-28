@@ -5,6 +5,7 @@ package edu.ucsd.cse110.ZooSeeker;
 import static edu.ucsd.cse110.ZooSeeker.DirectionActivity.currLocation;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.IDToNameMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.curLocation;
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.nameToParentIDMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.testLati;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.testLong;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.vertexInfoMap;
@@ -133,6 +134,9 @@ public class FindDirection {
                 result = exhibitInfo.name;
             }
         }
+
+        result = nameToParentIDMap.get(result);
+
         return result;
     }
 }
