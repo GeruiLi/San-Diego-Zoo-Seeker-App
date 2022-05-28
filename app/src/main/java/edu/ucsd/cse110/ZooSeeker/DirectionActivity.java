@@ -1,5 +1,6 @@
 package edu.ucsd.cse110.ZooSeeker;
 
+import static edu.ucsd.cse110.ZooSeeker.FindDirection.findNearestExhibitID;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.curLocation;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.testLong;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.testLati;
@@ -11,6 +12,7 @@ import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.sortedID;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -164,15 +166,8 @@ public class DirectionActivity extends AppCompatActivity {
         }
     }
 
-    /*
-    Title: MainPresenter.java
-    Author: DylanLukes
-    Date: 27 May, 2021
-    Type: Android
-    Availability: https://github.com/CSE-110-Spring-2022/ZooData/blob/main/zoodata_demo/src/main/java/edu/ucsd/cse110/zoodata_demo/MainPresenter.java
-    */
     public void mockClicked(View view) {
-
+        // TODO: could define this layout in an XML and inflate it, instead of defining in code...
         var inputType = EditorInfo.TYPE_CLASS_NUMBER
                 | EditorInfo.TYPE_NUMBER_FLAG_SIGNED
                 | EditorInfo.TYPE_NUMBER_FLAG_DECIMAL;
@@ -193,6 +188,10 @@ public class DirectionActivity extends AppCompatActivity {
         layout.addView(latInput);
         layout.addView(lngInput);
 
+        mockLocation(latInput, lngInput, layout);
+    }
+
+    private void mockLocation(EditText latInput, EditText lngInput, LinearLayout layout) {
         var builder = new AlertDialog.Builder(this)
                 .setTitle("Inject a Mock Location")
                 .setView(layout)
@@ -200,12 +199,36 @@ public class DirectionActivity extends AppCompatActivity {
                     var lat = Double.parseDouble(latInput.getText().toString());
                     var lng = Double.parseDouble(lngInput.getText().toString());
                     updateCurrentLocation(lat, lng);
+
+                    // todo: if condition change
+                    if( findNearestExhibitID(currLocation) != ""
+                    ) {
+                    final LinearLayout layout1 = new LinearLayout(this);
+                    layout1.setDividerPadding(8);
+                    layout1.setOrientation(LinearLayout.VERTICAL);
+                        replan(layout1);
+                    }
+
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> {
                     dialog.cancel();
                 });
         builder.show();
+    }
 
+    private void replan( LinearLayout layout2) {
+        var builder2 = new AlertDialog.Builder(this)
+                .setTitle("You are in the wrong track("
+                        + findNearestExhibitID(currLocation)+"), you can do a replan")
+                .setView(layout2)
+                //Todo : replan sth
+                .setPositiveButton("replan", (dialog2, which2) -> {
+
+                })
+                .setNegativeButton("Cancel", (dialog2, which2) -> {
+                    dialog2.cancel();
+                });
+        builder2.show();
     }
 
     public void updateCurrentLocation(double lat, double lng) {
