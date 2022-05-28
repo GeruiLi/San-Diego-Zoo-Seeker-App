@@ -62,7 +62,9 @@ public class DirectionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_direction);
 
         //initialize currLocation
-        currLocation = new Location("Current");
+        currLocation = new Location("entrance_exit_gate");
+        currLocation.setLatitude(32.73561);
+        currLocation.setLongitude(-117.14936);
 
         Bundle extras = getIntent().getExtras();
         if(extras != null)
@@ -196,6 +198,8 @@ public class DirectionActivity extends AppCompatActivity {
                     dialog.cancel();
                 });
         builder.show();
+
+
     }
 
     public void updateCurrentLocation(double lat, double lng) {

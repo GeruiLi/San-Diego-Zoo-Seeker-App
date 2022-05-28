@@ -1,10 +1,14 @@
 package edu.ucsd.cse110.ZooSeeker;
 
+import static edu.ucsd.cse110.ZooSeeker.FindDirection.findNearestExhibitID;
+
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,8 +28,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 import org.jgrapht.Graph;
 
@@ -95,6 +106,9 @@ public class SearchListActivity extends AppCompatActivity {
     public static String testLong;
     public static String testLati;
 
+    private LocationCallback locationCallback;
+
+    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,11 +118,47 @@ public class SearchListActivity extends AppCompatActivity {
         Section for vertex/edge/graph info
          */
 
-        //Create location services client
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        //Location
+        {
+            //Create location services client
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        //update cur location
-        if (updateLocation()) return;
+            //update cur location
+            if (updateLocation()) return;
+
+            //set position information requirement
+            LocationRequest locationRequest = LocationRequest.create();
+            locationRequest.setInterval(10000);
+            locationRequest.setFastestInterval(5000);
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+
+            SettingsClient client = LocationServices.getSettingsClient(this);
+            Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+
+
+
+            //fusedLocationClient.requestLocationUpdates(locationRequest,
+            //        locationCallback,
+            //        Looper.getMainLooper());
+
+            locationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    if (locationResult == null) {
+                        return;
+                    }
+                    for (Location location : locationResult.getLocations()) {
+                        // Update UI with location data
+                        // ...
+                        if(findNearestExhibitID(location) != "")
+                            System.out.println("Test1");
+                    }
+                }
+            };
+
+        }
 
         //not going to use the graph yet for the searching function
         //Graph<String, IdentifiedWeightedEdge> graphInfoMap = ZooData.loadZooGraphJSON(this,"sample_zoo_graph.json");
@@ -254,6 +304,8 @@ public class SearchListActivity extends AppCompatActivity {
                 });
         return false;
     }
+
+
 
     /*
     Title: Android SearchView with Example
