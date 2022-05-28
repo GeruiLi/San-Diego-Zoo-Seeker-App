@@ -17,8 +17,12 @@ import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -35,6 +39,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 public class DirectionActivity extends AppCompatActivity {
+    public static Location currLocation;
+
     private boolean isResume;
     private int index;
     private int current;
@@ -54,6 +60,9 @@ public class DirectionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_direction);
+
+        //initialize currLocation
+        currLocation = new Location("Current");
 
         Bundle extras = getIntent().getExtras();
         if(extras != null)
@@ -151,6 +160,47 @@ public class DirectionActivity extends AppCompatActivity {
             current = current + 1;
 
         }
+    }
+
+    public void mockClicked(View view) {
+        // TODO: could define this layout in an XML and inflate it, instead of defining in code...
+        var inputType = EditorInfo.TYPE_CLASS_NUMBER
+                | EditorInfo.TYPE_NUMBER_FLAG_SIGNED
+                | EditorInfo.TYPE_NUMBER_FLAG_DECIMAL;
+
+        final EditText latInput = new EditText(this);
+        latInput.setInputType(inputType);
+        latInput.setHint("Latitude");
+        latInput.setText("32.");
+
+        final EditText lngInput = new EditText(this);
+        lngInput.setInputType(inputType);
+        lngInput.setHint("Longitude");
+        lngInput.setText("-117.");
+
+        final LinearLayout layout = new LinearLayout(this);
+        layout.setDividerPadding(8);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.addView(latInput);
+        layout.addView(lngInput);
+
+        var builder = new AlertDialog.Builder(this)
+                .setTitle("Inject a Mock Location")
+                .setView(layout)
+                .setPositiveButton("Submit", (dialog, which) -> {
+                    var lat = Double.parseDouble(latInput.getText().toString());
+                    var lng = Double.parseDouble(lngInput.getText().toString());
+                    updateCurrentLocation(lat, lng);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    dialog.cancel();
+                });
+        builder.show();
+    }
+
+    public void updateCurrentLocation(double lat, double lng) {
+        currLocation.setLatitude(lat);
+        currLocation.setLongitude(lng);
     }
 
     public void load() {

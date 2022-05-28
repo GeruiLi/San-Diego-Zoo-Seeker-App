@@ -27,9 +27,9 @@ public class FindDirection {
         GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(graphInfoMap, start, goal);
 
         //future feature for real location
-        //String rlt = "You are close to " + start + ". ";
-        String rlt = "" + testLong + " " + testLati + " ";
-        rlt += "You are close to " + findNearestExhibitID() + " ";
+        String rlt = "You are close to " + start + ". ";
+        //String rlt = "" + testLong + " " + testLati + " ";
+        //rlt += "You are close to " + findNearestExhibitID() + " ";
 
         for (IdentifiedWeightedEdge e : path.getEdgeList()) {
             String s = "Walk " + (int)graphInfoMap.getEdgeWeight(e)
