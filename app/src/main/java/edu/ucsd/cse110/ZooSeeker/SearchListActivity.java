@@ -254,6 +254,7 @@ public class SearchListActivity extends AppCompatActivity {
                 selectedExhibit = (String) parent.getItemAtPosition(position);
                 //selectedExhibit = nameToParentIDMap.get(selectedExhibit);
 
+                //check if the select item is repeated
                 if (!selectedExhibitList.contains(selectedExhibit)) {
                     exhibitTodoViewModel.createTodo(selectedExhibit);
                 }
@@ -270,6 +271,11 @@ public class SearchListActivity extends AppCompatActivity {
         exhibitListItemDao =
                 ExhibitTodoDatabase.getSingleton(this).exhibitListItemDao();
         exhibitListItems = exhibitListItemDao.getAll();
+
+        //Add data to selectedExhibitList after app is killed
+        for (ExhibitListItem item : exhibitListItems) {
+            selectedExhibitList.add(item.exhibitName);
+        }
 
         exhibitListAdapter = new ExhibitListAdapter();
         exhibitListAdapter.setHasStableIds(true);
@@ -378,11 +384,6 @@ public class SearchListActivity extends AppCompatActivity {
         //Get data from Dao and update total selected count
         exhibitListItems = exhibitListItemDao.getAll();
         exhibitCountTextView.setText(SELECTED_TOTAL + " " + exhibitListItems.size());
-
-        //Add data to selectedExhibitList after resume
-        for (ExhibitListItem item : exhibitListItems) {
-            selectedExhibitList.add(item.exhibitName);
-        }
     }
 
     public void onLaunchPlanClicked(View view) {

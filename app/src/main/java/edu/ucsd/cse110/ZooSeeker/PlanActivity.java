@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -22,6 +23,7 @@ import java.util.concurrent.Future;
 
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.IDToNameMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.distance;
+import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.selectedExhibitList;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.sortedID;
 
 
@@ -36,6 +38,13 @@ public class PlanActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        String all = "{";
+        for (String e : selectedExhibitList) {
+            all += e + ", ";
+        }
+        Log.d("TEST", all + "}\n");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plan);
 
@@ -70,6 +79,7 @@ public class PlanActivity extends AppCompatActivity {
     public void deleteAllClicked(View view) {
         Utilities.deleteExhibitPlan();
         setContentView(R.layout.activity_plan);
+        selectedExhibitList.clear();
     }
 
 }
