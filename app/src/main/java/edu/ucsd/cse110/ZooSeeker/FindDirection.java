@@ -27,8 +27,13 @@ import java.util.Map;
 
 public class FindDirection {
 
+    //Print the path from start point to end point
+    //@param String start point
+    //@param String end point
+    //@return String Total Direction information
     public static String printPath(String start, String goal){
-        GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(graphInfoMap, start, goal);
+        GraphPath<String, IdentifiedWeightedEdge> path =
+                DijkstraShortestPath.findPathBetween(graphInfoMap, start, goal);
 
         //Construct Path information
         String rlt = "You are close to " +
@@ -41,6 +46,10 @@ public class FindDirection {
         return rlt;
     }
 
+    //Print the total distance from start point to end point
+    //@param String start point
+    //@param String end point
+    //@return String Total Direction's Distance Information
     public static String printDistance(String start, String goal){
         GraphPath<String, IdentifiedWeightedEdge> path =
                 DijkstraShortestPath.findPathBetween(graphInfoMap, start, goal);
@@ -51,6 +60,9 @@ public class FindDirection {
         return rlt;
     }
 
+    //find the total point from a graph path
+    //@param GraphPath<String, IdentifiedWeightedEdge> a graphPath include path information
+    //@return Double Total Distance passed in the path
     private static double getTotalWeight(GraphPath<String, IdentifiedWeightedEdge> path) {
         double weight = 0;
         for (IdentifiedWeightedEdge e : path.getEdgeList()) {
@@ -59,6 +71,9 @@ public class FindDirection {
         return weight;
     }
 
+    //find the nearest exhibit ID from a location
+    //@param Location a location include lat and lng with its id
+    //@return String the nearest exhibit id from this location
     public static String findNearestExhibitID( Location location) {
         String result = "";
 
@@ -77,21 +92,35 @@ public class FindDirection {
                 //double distance=testPoint.distanceTo(endPoint);
             }
             //calculate shortest one and record, return it
-            result = getShortestExhibitId(location, result, exhibitInfo, endPoint);
+            result = calculateShortestExhibitId(location, result, exhibitInfo, endPoint);
         }
 
         return result;
     }
 
+    //set the location's id, lat and lng
+    //@param String id of location
+    //@param double latitude
+    //@param double longitude
+    //@return Location with new id, latitude and longitude
     @NonNull
     private static Location setLocation(String id, double lat, double lng) {
+        //update  location with params
         Location endPoint = new Location(id);
         endPoint.setLatitude(lat);
         endPoint.setLongitude(lng);
         return endPoint;
     }
 
-    private static String getShortestExhibitId(Location location, String result, ZooData.VertexInfo exhibitInfo, Location endPoint) {
+    //find the shortest exhibit's id from location
+    //@param Location a location
+    //@param String result to be returned
+    //@param ZooData.vertexInfo exhibit's info includes all the exhibits
+    //@param Location an endPoint for location
+    //@return String shortest exhibit's id
+    private static String calculateShortestExhibitId(Location location, String result,
+                                               ZooData.VertexInfo exhibitInfo, Location endPoint) {
+        //use loop to get the shortest exhibit's id from all exhibits
         double min = Integer.MAX_VALUE;
         if(location.distanceTo(endPoint) < min){
             min = location.distanceTo(endPoint);
