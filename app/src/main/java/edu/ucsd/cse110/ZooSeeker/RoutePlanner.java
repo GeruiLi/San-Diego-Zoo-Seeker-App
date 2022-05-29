@@ -1,12 +1,22 @@
 package edu.ucsd.cse110.ZooSeeker;
 
+import edu.ucsd.cse110.ZooSeeker.SearchListActivity;
+
 import static edu.ucsd.cse110.ZooSeeker.DirectionActivity.currLocation;
 import static edu.ucsd.cse110.ZooSeeker.FindDirection.findNearestExhibitID;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.graphInfoMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.nameToParentIDMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.vertexInfoMap;
+
+import androidx.annotation.NonNull;
+
+import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,17 +27,21 @@ public class RoutePlanner {
 
     public DijkstraShortestPath path;
     public List<String> userPlan = new ArrayList<String>();
+    //initialize idToNameMap
+
     public RoutePlanner(List<ExhibitListItem> plan, Boolean rePlan) {
-        //add exhibit in plan into userplan
         for(ExhibitListItem exhibit : plan){
             this.userPlan.add(nameToParentIDMap.get(exhibit.exhibitName));
         }
         route = new ArrayList<>();
         distance = new ArrayList<>();
 
-        //build start and path
-        if(!rePlan) this.start = findGate(vertexInfoMap);
-        else this.start = findNearestExhibitID(currLocation);
+        if(!rePlan) {
+            this.start = findGate(vertexInfoMap);
+        }
+        else {
+            this.start = findNearestExhibitID(currLocation);
+        }
 
         this.path = new DijkstraShortestPath(graphInfoMap);
         buildRoute(this.userPlan, start);
@@ -46,28 +60,25 @@ public class RoutePlanner {
     }
 
     public void buildRoute(List<String> userPlan, String current) {
-        //Create variables
-        String shortest = "";
-        double lastDis = 0;
-        double min = Double.MAX_VALUE;
 
-        //build route and distance
+        double lastDis = 0;
         while(userPlan.size() != 0){
+            double min = Double.MAX_VALUE;
+            String shortest = "";
             for(String id : userPlan){
                 if(min > path.getPathWeight(current,id)){
                     shortest = id;
                     min = path.getPathWeight(current,id);
                 }
             }
-
-            //add shortest to route,its distance to distance
             route.add(shortest);
+
             distance.add(Double.toString(min + lastDis) + " feet");
-            //loop update
             lastDis = min;
             userPlan.remove(shortest);
             current = shortest;
         }
+
     }
 
     public List<String> getRoute() {
