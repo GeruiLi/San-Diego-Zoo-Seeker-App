@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.jgrapht.Graph;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +41,7 @@ public class DirectionActivity extends AppCompatActivity {
     private String currentLocationID;
     private String focus;
     private int focusIndex;
+    List<String> rePlan = new ArrayList<>();  //contain exhibit of new plan after replan
 
     private ExhibitListItemDao dao;
     private ExhibitTodoDatabase db;
@@ -246,17 +248,89 @@ public class DirectionActivity extends AppCompatActivity {
                     var lng = Double.parseDouble(lngInput.getText().toString());
                     updateCurrentLocation(lat, lng);
 
+                    //update currentLocationID (current exhibit ID) according to currLocation (lat, lng)
+                    currentLocationID = findNearestExhibitID(currLocation);
+
+                    //detect current User location is on focus location
+                    //trigger: plan unchanged, move on to the next focus
+                    //prompt user you are already on the site
+                    //to do...
+
+
+
+
+                    //detect current User location is on a later planned exhibit
+                    //trigger: prompt "it seems like you are on a planned exhibit already, replan?"
+                    //replan: base on the current visiting exhibit (C), how to get to others on our original plan (A, B, D)
+                    //no: move focus to next visiting exhibit (D)
+                    //get index of current location, set focus index to current location index +1
+                    //set focus to sortedID.get(focusIndex)
+                    //currentLocationID  sortedID
+                    //|focus|, [Current]
+                    //|A| -> B -> [C] -> D
+                    //get focusIndex, get subarray of sortedID which all elements have index greater than
+                    //focusIndex, and exclude current location
+
+                    //psudo code
+                    //get focusIndex
+                    //add all elements with index greater than focus index to a list (maybe called tobeVisiting)
+                    //exclude currentLocation from the list
+                    for(int i = focusIndex; i < sortedID.size(); i++){
+                        //sortedID[i] is id
+                        //convert this id to its corresponding exhibitlistitem
+                        //add this exhibititem to toBeVisiting
+                        //to do...
+
+                        //for loop TODO refactor
+                        for (ExhibitListItem e : exhibitListItems) {
+                            if ( nameToParentIDMap.get( e.getExhibitName() ).equals(sortedID.get(i)) ) {
+                                toBeVisiting.add(e);
+                            }
+                        }
+                    }
+
+                    //exclude current location from toBeVisiting
+                    //to do...
+                    /*for(ExhibitListItem e : toBeVisiting){
+                        if(nameToParentIDMap.get(e.getExhibitName()) .equals(currentLocationID))
+                            toBeVisiting.remove(e);
+                    } */
+
+                    //psudo
+                    //call routePlanner and return new plan to list rePlan
+                    //overwrite
+                    RoutePlanner routePlanner = new RoutePlanner(toBeVisiting, true);
+                    rePlan = routePlanner.getRoute();
+
+                    //ABC + replan(DFE)
+
+                    for(int i = 0; i < rePlan.size(); i++) {
+                        sortedID.set(focusIndex, rePlan.get(i));
+                    }
+
+                    focus = sortedID.get(focusIndex);
+
+
+
+
+
+
+
+
+
+                    //detect
+
                     cur = findNearestExhibitID(currLocation);
                     currentIndex = sortedID.indexOf(cur);
                     Boolean curIsInToBeVisiting = false;
                     //if cur is not in visited and in tobeVISITING,add
                     for(ExhibitListItem e : toBeVisiting){
-                        if(nameToParentIDMap.get(e.exhibitName) == cur) {
+                        if(nameToParentIDMap.get(e.exhibitName) == currentLocationID) {
                             curIsInToBeVisiting = true;
                             break;
                         }
                     }
-                    if(!visited.contains(cur) && curIsInToBeVisiting )visited.add(cur);
+                    if(!visited.contains(currentLocationID) && curIsInToBeVisiting )visited.add(currentLocationID);
 
                     // todo: if condition change
                     if( findNearestExhibitID(currLocation) != ""
@@ -290,20 +364,9 @@ public class DirectionActivity extends AppCompatActivity {
                     Log.d("TEST", all + "}\n");
 
                      */
-                    /*
-                    all = "{";
-                    for (String e : nameToParentIDMap.keySet()) {
-                        all += "(" + e + ", " + nameToParentIDMap.get(e) + ") ; ";
-                    }
-                    Log.d("TEST", all + "}\n");
-
-                    "lat": 32.74812588554637,
-                    "lng": -117.17565073656901
-                    */
 
 
                     //create a new routeplanner to contain the new route
-
                     for (ExhibitListItem exhibit : exhibitListItems){
                         if(visited != null && !visited.contains(nameToParentIDMap.get(exhibit.exhibitName)))
                             toBeVisiting.add(exhibit);
