@@ -26,7 +26,8 @@ import java.util.Map;
 public class DirectionActivity extends AppCompatActivity {
     public static Location currLocation;
 
-    public List<ExhibitListItem> toBeVisiting;   //exhibits to be visiting
+    //exhibits to be visit
+    public List<ExhibitListItem> toBeVisiting;
     public List<String> visited;
     private boolean isResume;
     private int index;
@@ -37,11 +38,18 @@ public class DirectionActivity extends AppCompatActivity {
     private String nxt;
     private String gate;
 
-    //refactor
+    /*
+    new vars we are going to use after refactoring
+    */
+
+    //current nearest exhibit's ID
     private String currentLocationID;
+    //current focus exhibit in plan
     private String focus;
+    //index for finding current focus exhibit
     private int focusIndex;
-    List<String> rePlan = new ArrayList<>();  //contain exhibit of new plan after replan
+    //contain exhibit of new plan after replan
+    List<String> rePlan = new ArrayList<>();
 
     private ExhibitListItemDao dao;
     private ExhibitTodoDatabase db;
@@ -210,8 +218,8 @@ public class DirectionActivity extends AppCompatActivity {
         }
     }
 
+    //Adapted from DylanLukes' example code
     public void mockClicked(View view) {
-        // TODO: could define this layout in an XML and inflate it, instead of defining in code...
         var inputType = EditorInfo.TYPE_CLASS_NUMBER
                 | EditorInfo.TYPE_NUMBER_FLAG_SIGNED
                 | EditorInfo.TYPE_NUMBER_FLAG_DECIMAL;
@@ -221,14 +229,16 @@ public class DirectionActivity extends AppCompatActivity {
         latInput.setHint("Latitude");
         //32.74812588554637 Gorillas
         //32.746302644092815 Crocodiles
-        latInput.setText("32.74812588554637");
+        //32.72211788245888 Koi fish
+        latInput.setText("32.72211788245888");
 
         final EditText lngInput = new EditText(this);
         lngInput.setInputType(inputType);
         lngInput.setHint("Longitude");
         //-117.17565073656901 Gorillas
         //-117.16659525430192 Crocodiles
-        lngInput.setText("-117.17565073656901");
+        //-117.15794384136309 Koi fish
+        lngInput.setText("-117.15794384136309");
 
         final LinearLayout layout = new LinearLayout(this);
         layout.setDividerPadding(8);
@@ -240,7 +250,8 @@ public class DirectionActivity extends AppCompatActivity {
     }
 
     private void mockLocation(EditText latInput, EditText lngInput, LinearLayout layout) {
-        var builder = new AlertDialog.Builder(this)
+        //Alert Builder - the pop up window
+        var mockWindowBuilder = new AlertDialog.Builder(this)
                 .setTitle("Inject a Mock Location")
                 .setView(layout)
                 .setPositiveButton("Submit", (dialog, which) -> {
@@ -251,12 +262,16 @@ public class DirectionActivity extends AppCompatActivity {
                     //update currentLocationID (current exhibit ID) according to currLocation (lat, lng)
                     currentLocationID = findNearestExhibitID(currLocation);
 
+                    //declare and initialize currentLayout for prompt messages
+                    final LinearLayout currentLayout = new LinearLayout(this);
+                    currentLayout.setDividerPadding(8);
+                    currentLayout.setOrientation(LinearLayout.VERTICAL);
+
                     //detect current User location is on focus location
-                    //trigger: plan unchanged, move on to the next focus
-                    //prompt user you are already on the site
-                    //to do...
-
-
+                    //trigger: plan unchanged; prompt user you are already on the site
+                    if (focus.equals(currentLocationID)) {
+                        onsitePrompt(currentLayout);
+                    }
 
 
                     //detect current User location is on a later planned exhibit
@@ -275,6 +290,7 @@ public class DirectionActivity extends AppCompatActivity {
                     //get focusIndex
                     //add all elements with index greater than focus index to a list (maybe called tobeVisiting)
                     //exclude currentLocation from the list
+                    /*
                     for(int i = focusIndex; i < sortedID.size(); i++){
                         //sortedID[i] is id
                         //convert this id to its corresponding exhibitlistitem
@@ -296,7 +312,8 @@ public class DirectionActivity extends AppCompatActivity {
                             toBeVisiting.remove(e);
                     } */
 
-                    //psudo
+                    /*
+                    //pseudo
                     //call routePlanner and return new plan to list rePlan
                     //overwrite
                     RoutePlanner routePlanner = new RoutePlanner(toBeVisiting, true);
@@ -310,16 +327,14 @@ public class DirectionActivity extends AppCompatActivity {
 
                     focus = sortedID.get(focusIndex);
 
+                    */
 
 
 
 
+                    /*
 
-
-
-
-                    //detect
-
+                    //find the user's current nearest exhibit
                     cur = findNearestExhibitID(currLocation);
                     currentIndex = sortedID.indexOf(cur);
                     Boolean curIsInToBeVisiting = false;
@@ -335,24 +350,26 @@ public class DirectionActivity extends AppCompatActivity {
                     // todo: if condition change
                     if( findNearestExhibitID(currLocation) != ""
                     ) {
-                    final LinearLayout layout1 = new LinearLayout(this);
-                    layout1.setDividerPadding(8);
-                    layout1.setOrientation(LinearLayout.VERTICAL);
-                        replan(layout1);
+                    final LinearLayout currentLayout = new LinearLayout(this);
+                    currentLayout.setDividerPadding(8);
+                    currentLayout.setOrientation(LinearLayout.VERTICAL);
+                        replan(currentLayout);
                     }
 
+
+                     */
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> {
                     dialog.cancel();
                 });
-        builder.show();
+        mockWindowBuilder.show();
     }
 
-    private void replan( LinearLayout layout2) {
+    private void replan( LinearLayout linearLayout) {
         var builder2 = new AlertDialog.Builder(this)
                 .setTitle("You are in the wrong track("
                         + findNearestExhibitID(currLocation)+"), you can do a replan")
-                .setView(layout2)
+                .setView(linearLayout)
                 //Todo : replan sth
                 .setPositiveButton("replan", (dialog2, which2) -> {
 
@@ -399,6 +416,18 @@ public class DirectionActivity extends AppCompatActivity {
                     dialog2.cancel();
                 });
         builder2.show();
+    }
+
+    private void onsitePrompt(LinearLayout linearLayout) {
+        var onsitePromptBuilder = new AlertDialog.Builder(this)
+                .setTitle("Onsite!")
+                .setView(linearLayout)
+                .setMessage("You are at the exhibit that you have selected to visit, " +
+                        "click NEXT button to move on to the next exhibit in plan!")
+                .setPositiveButton("Okay!", (dialog, which) -> {
+
+                });
+        onsitePromptBuilder.show();
     }
 
     public void updateCurrentLocation(double lat, double lng) {
