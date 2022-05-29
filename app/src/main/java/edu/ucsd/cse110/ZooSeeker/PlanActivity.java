@@ -74,6 +74,7 @@ public class PlanActivity extends AppCompatActivity {
         Utilities.deleteExhibitPlan();
         setContentView(R.layout.activity_plan);
         selectedExhibitList.clear();
+        finish();
     }
 
 }
