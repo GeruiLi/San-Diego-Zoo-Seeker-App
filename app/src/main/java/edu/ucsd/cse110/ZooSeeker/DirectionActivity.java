@@ -1,6 +1,6 @@
 package edu.ucsd.cse110.ZooSeeker;
 
-import static edu.ucsd.cse110.ZooSeeker.FindDirection.findNearestExhibitID;
+import static edu.ucsd.cse110.ZooSeeker.FindDirection.*;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.*;
 
 import android.annotation.SuppressLint;
@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -22,6 +23,7 @@ import org.jgrapht.Graph;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DirectionActivity extends AppCompatActivity {
     public static Location currLocation;
@@ -50,6 +52,10 @@ public class DirectionActivity extends AppCompatActivity {
     private int focusIndex;
     //contain exhibit of new plan after replan
     List<String> rePlan = new ArrayList<>();
+    //List of remaining plan to be visited
+    List<String> remainingPlan;
+    //List of exhibits in plan that have been visited
+    List<String> visitedExhibits;
 
     private ExhibitListItemDao dao;
     private ExhibitTodoDatabase db;
@@ -114,6 +120,12 @@ public class DirectionActivity extends AppCompatActivity {
             nextExhibitDistance = FindDirection.printDistance(currentLocationID, focus);
             distanceText.setText(nextExhibitDistance);
             //this.cur = this.nxt;
+
+            //get a deep copy of sortedID - Non of the exhibits in plan has been visited
+            remainingPlan = sortedID.stream()
+                    .collect(Collectors.toList());
+            //Non of the exhibits in plan has been visited
+            visitedExhibits = new ArrayList<>();
         }
 
     }
@@ -164,6 +176,11 @@ public class DirectionActivity extends AppCompatActivity {
             focusIndex++;
             focus = sortedID.get(focusIndex);
 
+            //whenever next is clicked, the remainingPlan get rid of this exhibit -> mark as visited
+            remainingPlan.remove(focus);
+            //and visited gets updated with this info to keep track of the user's history
+            visitedExhibits.add(focus);
+
             //update instructions to the next exhibit (distance, directions) on UI
             updateDirectionInfo();
         }
@@ -171,8 +188,6 @@ public class DirectionActivity extends AppCompatActivity {
             finish();
         }
     }
-
-
 
     public void stepBackClicked(View view) {
      /*   if(currentIndex > 1){
@@ -221,7 +236,7 @@ public class DirectionActivity extends AppCompatActivity {
         //32.746302644092815 Crocodiles
         //32.72211788245888 Koi fish
         //32.73796433208615 Treetops Way / Orangutan Trail
-        latInput.setText("32.73796433208615");
+        latInput.setText("32.74812588554637");
 
         final EditText lngInput = new EditText(this);
         lngInput.setInputType(inputType);
@@ -230,7 +245,7 @@ public class DirectionActivity extends AppCompatActivity {
         //-117.16659525430192 Crocodiles
         //-117.15794384136309 Koi fish
         //-117.15781396193616 Treetops Way / Orangutan Trail
-        lngInput.setText("-117.15781396193616");
+        lngInput.setText("-117.17565073656901");
 
         final LinearLayout layout = new LinearLayout(this);
         layout.setDividerPadding(8);
@@ -239,6 +254,16 @@ public class DirectionActivity extends AppCompatActivity {
         layout.addView(lngInput);
 
         mockLocation(latInput, lngInput, layout);
+    }
+
+    private boolean onLaterSelectedExhibit(String focus, String currentLocation) {
+        List<String> laterExhibits = remainingPlan
+                .stream()
+                .filter(exhibit -> !(exhibit.equals(currentLocation)) )
+                .collect(Collectors.toList());
+
+        //check if focus is on on a later selected exhibit in plan (excluding currentLocation)
+        return laterExhibits.contains(focus);
     }
 
     private void mockLocation(EditText latInput, EditText lngInput, LinearLayout layout) {
@@ -267,6 +292,10 @@ public class DirectionActivity extends AppCompatActivity {
 
                     //detect current User location is on a later planned exhibit
                     //trigger: prompt "it seems like you are on a planned exhibit already, replan?"
+                    if (onLaterSelectedExhibit(focus, currentLocationID)) {
+                        replanPrompt(currentLayout);
+                    }
+
                     //replan: base on the current visiting exhibit (C), how to get to others on our original plan (A, B, D)
                     //no: move focus to nextExhibitDistance visiting exhibit (D)
                     //get index of current location, set focus index to current location index +1
@@ -424,6 +453,22 @@ public class DirectionActivity extends AppCompatActivity {
 
                 });
         onsitePromptBuilder.show();
+    }
+
+    private void replanPrompt(LinearLayout linearLayout) {
+        var replanPromptBuilder = new AlertDialog.Builder(this)
+                .setTitle("Replan?")
+                .setView(linearLayout)
+                .setMessage("It seems like you are currently closer to: " +
+                        findNearestExhibitName(currLocation) +
+                        ", which is a later selected exhibit on the original plan" +
+                        ", do you want a replan?")
+                .setPositiveButton("Replan", (dialog, which) -> {
+
+                }).setNegativeButton("Cancel", (dialog2, which2) -> {
+                    dialog2.cancel();
+                });
+        replanPromptBuilder.show();
     }
 
     public void updateCurrentLocation(double lat, double lng) {
