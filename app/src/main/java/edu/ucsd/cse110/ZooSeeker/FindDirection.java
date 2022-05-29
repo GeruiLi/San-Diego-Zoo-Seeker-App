@@ -4,10 +4,9 @@ package edu.ucsd.cse110.ZooSeeker;
 
 import static edu.ucsd.cse110.ZooSeeker.DirectionActivity.currLocation;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.IDToNameMap;
-import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.curLocation;
+
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.nameToParentIDMap;
-import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.testLati;
-import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.testLong;
+
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.vertexInfoMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.graphInfoMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.edgeInfoMap;

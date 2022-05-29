@@ -15,6 +15,7 @@ import androidx.lifecycle.LiveData;
 import java.util.List;
 
 public class Utilities {
+    //alert for undefined content in search list
     public static void showAlert(Activity activity, String message) {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(activity);
 
@@ -30,6 +31,7 @@ public class Utilities {
         alertDialog.show();
     }
 
+    //Delete exhibit plan
     public static void deleteExhibitPlan() {
         exhibitListItemDao.nukeTable();
         List<ExhibitListItem> exhibits = exhibitListItemDao.getAll();
@@ -40,13 +42,16 @@ public class Utilities {
         onDeleteBtnClicked.accept(exhibitItem);
         */
 
-        //print all
-        String all = "{";
-        for (ExhibitListItem i : exhibits) {
-            all += i.exhibitName + ", ";
-        }
-        all += "}";
+        //Todo : delete here
+        //print all for testing
+        {
+            String all = "{";
+            for (ExhibitListItem i : exhibits) {
+                all += i.exhibitName + ", ";
+            }
+            all += "}";
 
-        Log.d("TEST", all + "\n");
+            Log.d("TEST", all + "\n");
+        }
     }
 }

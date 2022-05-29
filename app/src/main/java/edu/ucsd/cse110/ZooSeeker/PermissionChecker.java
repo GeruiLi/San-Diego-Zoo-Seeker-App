@@ -11,6 +11,8 @@ import androidx.core.content.ContextCompat;
 
 import java.util.Arrays;
 
+
+//Todo: delete this class since no actual location is required
 public class PermissionChecker {
     private ComponentActivity activity;
     final ActivityResultLauncher<String[]> requestPermissionLauncher;

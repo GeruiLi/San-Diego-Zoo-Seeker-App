@@ -51,6 +51,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class SearchListActivity extends AppCompatActivity {
+
     public static final String SELECTED_TOTAL = "# of Exhibits Selected :";
 
     //view model
@@ -99,95 +100,40 @@ public class SearchListActivity extends AppCompatActivity {
     // String that store the selectedExhibit
     private String selectedExhibit;
 
-    private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
-    private Future<List<String>> future;
+    //todo delete here
+    //private ExecutorService backgroundThreadExecutor
+    //        = Executors.newSingleThreadExecutor();
+    //private Future<List<String>> future;
 
-    //Create location services client
-    public static FusedLocationProviderClient fusedLocationClient;
-    public static Location curLocation;
-
-    public static String testLong;
-    public static String testLati;
-
-    private LocationCallback locationCallback;
-
-    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Set UI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_list);
 
-        /*
-        Section for vertex/edge/graph info
-         */
 
-        //Location
-        {
-            //Create location services client
-            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-            //update cur location
-            if (updateLocation()) return;
-
-            //set position information requirement
-            LocationRequest locationRequest = LocationRequest.create();
-            locationRequest.setInterval(10000);
-            locationRequest.setFastestInterval(5000);
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-
-            SettingsClient client = LocationServices.getSettingsClient(this);
-            Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
-
-
-
-            //fusedLocationClient.requestLocationUpdates(locationRequest,
-            //        locationCallback,
-            //        Looper.getMainLooper());
-
-            locationCallback = new LocationCallback() {
-                @Override
-                public void onLocationResult(LocationResult locationResult) {
-                    if (locationResult == null) {
-                        return;
-                    }
-                    for (Location location : locationResult.getLocations()) {
-                        // Update UI with location data
-                        // ...
-                        if(findNearestExhibitID(location) != "")
-                            System.out.println("Test1");
-                    }
-                }
-            };
-
-        }
-
+        //load vertex/edge/graph info
         //not going to use the graph yet for the searching function
-        //Graph<String, IdentifiedWeightedEdge> graphInfoMap = ZooData.loadZooGraphJSON(this,"sample_zoo_graph.json");
-        graphInfoMap = ZooData.loadZooGraphJSON(this,"new_zoo_graph.json");
-        //Map<id, VertexInfo>
-        vertexInfoMap = ZooData.loadVertexInfoJSON(this,"new_node_info.json");
-        edgeInfoMap = ZooData.loadEdgeInfoJSON(this,"new_edge_info.json");
+        //Graph<String, IdentifiedWeightedEdge> graphInfoMap
+        // = ZooData.loadZooGraphJSON(this,"sample_zoo_graph.json");
+        loadJson();
 
         //initialize idToNameMap
-        nameToIDMap = new HashMap<>();
-        IDToNameMap = new HashMap<>();
-        sortedID = Collections.emptyList();
-        distance = Collections.emptyList();
-        selectedExhibitList = new ArrayList<>();
-
         //initialize exhibitToGroup map
-        exhibitToGroup = new HashMap<>();
-        nameToParentIDMap = new HashMap<>();
+        ///initialize nameToItemMap
+        initializeVariables();
 
-        //initialize nameToItemMap
-        nameToItemMap = new HashMap<>();
+        //create a search bar
+        createSearchBar();
 
-        /*
-        Section for search bar
-         */
+        //set exhibit list
+        setExhibitList();
 
+        //set plan button
+        findViewById(R.id.plan_btn).setOnClickListener(this::onLaunchPlanClicked);
+    }
+
+    private void createSearchBar() {
         //initialize ListView for search bar scroll-down menu
         searchedListView = findViewById(R.id.searchedListView);
 
@@ -199,13 +145,96 @@ public class SearchListActivity extends AppCompatActivity {
 
         //Filter out all the exhibits into the animalExhibitList
         ZooData.VertexInfo exhibitInfo, parentExhibit;
+
         //interate through the vertex map using the keys (id) of vertexInfoMap
+        constructIdMapInfo();
+
+        //Set adapter to searchedListView
+        setAdapter();
+
+        //onclick listener for search bar menu entries
+        createdOnclickListener();
+    }
+
+    private void setExhibitList() {
+        exhibitTodoViewModel = new ViewModelProvider(this)
+                .get(ExhibitTodoViewModel.class);
+
+        exhibitListItemDao =
+                ExhibitTodoDatabase.getSingleton(this).exhibitListItemDao();
+        exhibitListItems = exhibitListItemDao.getAll();
+
+        //Add data to selectedExhibitList after app is killed
+        for (ExhibitListItem item : exhibitListItems)
+            selectedExhibitList.add(item.exhibitName);
+
+        exhibitListAdapter = new ExhibitListAdapter();
+        exhibitListAdapter.setHasStableIds(true);
+        exhibitListAdapter.setOnCheckBoxClickedHandler(exhibitTodoViewModel::toggleSelected);
+        exhibitListAdapter.setOnDeleteBtnClickedHandler(exhibitTodoViewModel::setDeleted);
+        exhibitListAdapter.setOnTextChangedHandler(exhibitTodoViewModel::updateText);
+        exhibitTodoViewModel.getTodoListItems()
+                .observe(this, exhibitListAdapter::setExhibitListItems);
+
+        exhibitRecyclerView = findViewById(R.id.exhibitItems);
+        exhibitRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        exhibitRecyclerView.setAdapter(exhibitListAdapter);
+    }
+
+    private void setAdapter() {
+        pullDownMenuArrayAdapter
+                = new ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_list_item_1,
+                animalExhibitList);
+        searchedListView.setAdapter(pullDownMenuArrayAdapter);
+    }
+
+    private void createdOnclickListener() {
+        searchedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectedExhibit = (String) parent.getItemAtPosition(position);
+                //selectedExhibit = nameToParentIDMap.get(selectedExhibit);
+
+                //check if the select item is repeated
+                if (!selectedExhibitList.contains(selectedExhibit)) {
+                    exhibitTodoViewModel.createTodo(selectedExhibit);
+                }
+            }
+        });
+    }
+
+    private void initializeVariables() {
+        nameToIDMap = new HashMap<>();
+        IDToNameMap = new HashMap<>();
+        sortedID = Collections.emptyList();
+        distance = Collections.emptyList();
+        selectedExhibitList = new ArrayList<>();
+        exhibitToGroup = new HashMap<>();
+        nameToParentIDMap = new HashMap<>();
+        nameToItemMap = new HashMap<>();
+    }
+
+    private void loadJson() {
+        graphInfoMap = ZooData.loadZooGraphJSON
+                (this,"new_zoo_graph.json");
+        //Map<id, VertexInfo>
+        vertexInfoMap = ZooData.loadVertexInfoJSON
+                (this,"new_node_info.json");
+        edgeInfoMap = ZooData.loadEdgeInfoJSON
+                (this,"new_edge_info.json");
+    }
+
+    private void constructIdMapInfo() {
+        ZooData.VertexInfo exhibitInfo;
         for (String key : vertexInfoMap.keySet()) {
             exhibitInfo = vertexInfoMap.get(key);
             //if this vertex is an exhibit, add it to animalExhibitList
             nameToIDMap.put(exhibitInfo.name, exhibitInfo.id);
             IDToNameMap.put(exhibitInfo.id, exhibitInfo.name);
 
+            //todo maybe delete here
             /*
             //initialize exhibitToGroup map
             if (exhibitInfo.hasGroup()) {
@@ -225,98 +254,11 @@ public class SearchListActivity extends AppCompatActivity {
                 nameToParentIDMap.put(exhibitInfo.name, exhibitInfo.id);
             }
 
-
             if (exhibitInfo.kind == ZooData.VertexInfo.Kind.EXHIBIT) {
                 animalExhibitList.add(exhibitInfo.name);
             }
         }
-
-        /*
-        Set<String> keys = vertexInfoMap.keySet();
-        String key;
-        for (int i = 0; i < keys.size(); i++) {
-            key = keys.
-        }
-        */
-
-        //Set adapter to searchedListView
-        pullDownMenuArrayAdapter
-                = new ArrayAdapter<String>(
-                this,
-                android.R.layout.simple_list_item_1,
-                animalExhibitList);
-        searchedListView.setAdapter(pullDownMenuArrayAdapter);
-
-        //onclick listener for search bar menu entries
-        searchedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedExhibit = (String) parent.getItemAtPosition(position);
-                //selectedExhibit = nameToParentIDMap.get(selectedExhibit);
-
-                //check if the select item is repeated
-                if (!selectedExhibitList.contains(selectedExhibit)) {
-                    exhibitTodoViewModel.createTodo(selectedExhibit);
-                }
-            }
-        });
-
-        /*
-        Section for exhibit list
-         */
-
-        exhibitTodoViewModel = new ViewModelProvider(this)
-                .get(ExhibitTodoViewModel.class);
-
-        exhibitListItemDao =
-                ExhibitTodoDatabase.getSingleton(this).exhibitListItemDao();
-        exhibitListItems = exhibitListItemDao.getAll();
-
-        //Add data to selectedExhibitList after app is killed
-        for (ExhibitListItem item : exhibitListItems) {
-            selectedExhibitList.add(item.exhibitName);
-        }
-
-        exhibitListAdapter = new ExhibitListAdapter();
-        exhibitListAdapter.setHasStableIds(true);
-        exhibitListAdapter.setOnCheckBoxClickedHandler(exhibitTodoViewModel::toggleSelected);
-        exhibitListAdapter.setOnDeleteBtnClickedHandler(exhibitTodoViewModel::setDeleted);
-        exhibitListAdapter.setOnTextChangedHandler(exhibitTodoViewModel::updateText);
-        exhibitTodoViewModel
-                .getTodoListItems()
-                .observe(this, exhibitListAdapter::setExhibitListItems);
-
-        exhibitRecyclerView = findViewById(R.id.exhibitItems);
-        exhibitRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        exhibitRecyclerView.setAdapter(exhibitListAdapter);
-
-        /*
-        Section for plan button
-         */
-
-        findViewById(R.id.plan_btn).setOnClickListener(this::onLaunchPlanClicked);
     }
-
-    private boolean updateLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            curLocation = location;
-                            testLong = "" + curLocation.getLongitude();
-                            testLati = "" + curLocation.getLatitude();
-                        }
-                    }
-                });
-        return false;
-    }
-
 
 
     /*
@@ -338,9 +280,7 @@ public class SearchListActivity extends AppCompatActivity {
         SearchView searchView = (SearchView) searchViewItem.getActionView();
 
         //attach query listener to the search view
-        searchView.setOnQueryTextListener(
-                new SearchView.OnQueryTextListener() {
-
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     //Override onQueryTextSubmit method
                     //called each time when a query is searched
 
@@ -371,7 +311,6 @@ public class SearchListActivity extends AppCompatActivity {
                         pullDownMenuArrayAdapter.getFilter().filter(newQueryText);
                         return false;
                     }
-
                 }
         );
 

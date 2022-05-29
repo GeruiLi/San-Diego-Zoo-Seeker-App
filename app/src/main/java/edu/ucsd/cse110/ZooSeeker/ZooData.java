@@ -80,8 +80,7 @@ public class ZooData {
             //   indexedZooData[datum.id] = datum;
             // }
             //
-            Map<String, VertexInfo> indexedZooData = zooData
-                    .stream()
+            Map<String, VertexInfo> indexedZooData = zooData.stream()
                     .collect(Collectors.toMap(v -> v.id, datum -> datum));
 
             return indexedZooData;

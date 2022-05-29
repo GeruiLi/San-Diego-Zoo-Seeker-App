@@ -39,26 +39,41 @@ public class PlanActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        //set UI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plan);
 
+        //initial adapter
+        initialAdapterForUI();
+    }
+
+    //initial the adapter for the UI
+    private void initialAdapterForUI() {
+        //Create adaoter
         adapter = new PlanListAdapter();
         adapter.setHasStableIds(true);
-
-        exhibitNames = new ArrayList<>();
-
         recyclerView = findViewById(R.id.plan_items);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        for(String s : sortedID){
-            exhibitNames.add(IDToNameMap.get(s));
-        }
+        //add exhibit in list
+        addExhbits();
 
+        //setup adapter with content in list
         adapter.setPlanListItems(exhibitNames);
         adapter.setDistance(distance);
     }
 
+    //add exhibit in list
+    private void addExhbits() {
+        exhibitNames = new ArrayList<>();
+        for (String s : sortedID) {
+            exhibitNames.add(IDToNameMap.get(s));
+        }
+    }
+
+
+    //close current thread and enter direction thread
     public void DirectionClicked(View view) {
         Intent intent = new Intent(this, DirectionActivity.class);
         intent.putExtra("isResume",false);
@@ -66,10 +81,12 @@ public class PlanActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    //Return to the plan activity and finish this thread
     public void ReturnClicked(View view) {
         finish();
     }
 
+    //Delete all plan and back to plan activity
     public void deleteAllClicked(View view) {
         Utilities.deleteExhibitPlan();
         setContentView(R.layout.activity_plan);

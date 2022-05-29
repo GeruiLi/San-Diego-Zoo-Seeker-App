@@ -77,7 +77,7 @@ public class DirectionActivity extends AppCompatActivity {
 
         //when the sortedID is created
         if(sortedID != null){
-            //retai progress
+            //retain progress
             //if(!isResume) PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit();
 
             index = sortedID.size();
@@ -339,6 +339,7 @@ public class DirectionActivity extends AppCompatActivity {
     }
 
     public void updateCurrentLocation(double lat, double lng) {
+        //set location's lat and lng by params
         currLocation.setLatitude(lat);
         currLocation.setLongitude(lng);
     }
