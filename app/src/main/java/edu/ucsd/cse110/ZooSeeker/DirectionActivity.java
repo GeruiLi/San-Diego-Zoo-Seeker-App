@@ -3,16 +3,11 @@ package edu.ucsd.cse110.ZooSeeker;
 import static edu.ucsd.cse110.ZooSeeker.FindDirection.findNearestExhibitID;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.*;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -21,31 +16,30 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import org.jgrapht.Graph;
-import org.jgrapht.GraphPath;
-import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
 import java.util.List;
 import java.util.Map;
 
-import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.graphInfoMap;
-
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-
 public class DirectionActivity extends AppCompatActivity {
     public static Location currLocation;
 
+    public List<ExhibitListItem> toBeVisiting;   //exhibits to be visiting
+    public List<String> visited;
     private boolean isResume;
     private int index;
-    private int current;
+    private int currentIndex;
     private Graph<String, IdentifiedWeightedEdge> graphInfoMap;
     private Map<String, ZooData.EdgeInfo> edgeInfoMap;
     private String cur;
     private String nxt;
     private String gate;
+
+    //refactor
+    private String currentLocationID;
+    private String focus;
+    private int focusIndex;
 
     private ExhibitListItemDao dao;
     private ExhibitTodoDatabase db;
@@ -57,45 +51,64 @@ public class DirectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_direction);
 
-        //initialize currLocation
-        currLocation = new Location("entrance_exit_gate");
-        currLocation.setLatitude(32.73561);
-        currLocation.setLongitude(-117.14936);
-
-        Bundle extras = getIntent().getExtras();
-        if(extras != null)
-            isResume = extras.getBoolean("isResume");
-        else
-            isResume = false;
-
+        //find gate id
         gate = ZooData.findGate(vertexInfoMap);
 
+        //initialize currLocation
+        {
+            currLocation = new Location("entrance_exit_gate");
+            currLocation.setLatitude(32.73561);
+            currLocation.setLongitude(-117.14936);
+        }
+
+        //initialize tobeVisiting
+       /* for(ExhibitListItem e : exhibitListItems){
+            toBeVisiting.add(e);
+        } */
+
+        //retain progress
+        {
+            Bundle extras = getIntent().getExtras();
+            if (extras != null)
+                isResume = extras.getBoolean("isResume");
+            else
+                isResume = false;
+        }
+
+        //when the sortedID is created
         if(sortedID != null){
-            if(!isResume) PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit();
+            //retai progress
+            //if(!isResume) PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit();
 
             index = sortedID.size();
-            load();
-            this.nxt = sortedID.get(current);
-            current++;
+            //load(); //if not resume,set current = 0, set cur = gate_id
 
-            String firstDirection = FindDirection.printPath(cur, nxt);
+            currentLocationID = gate;   //set current location to gate
+            focusIndex = 0;
+            focus = sortedID.get(focusIndex);   //set focus to first exhibit in sortedID
+
+            //this.nxt = sortedID.get(currentIndex);  //current is 0, get first element in sortedID
+            //currentIndex++;
+
+            //store path info from cur to nxt into firstDirection
+            String firstDirection = FindDirection.printPath(currentLocationID, focus);
 
             TextView directionText = findViewById(R.id.direction_inf);
             directionText.setText(firstDirection);
 
             TextView distanceText = findViewById(R.id.distance_inf);
-            String next = FindDirection.printDistance(cur, nxt);
+            String next = FindDirection.printDistance(currentLocationID, focus);
             distanceText.setText(next);
-            this.cur = this.nxt;
+            //this.cur = this.nxt;
         }
 
     }
 
     public void NextClicked(View view) {
-        if(sortedID != null && current < index){
-            save();
+       /* if(sortedID != null && currentIndex < index){
+            //save();  //save cur and current for retain progress
 
-            this.nxt = sortedID.get(current);
+            this.nxt = sortedID.get(currentIndex);
 
             String direction = FindDirection.printPath(cur ,nxt);
 
@@ -108,9 +121,9 @@ public class DirectionActivity extends AppCompatActivity {
 
             distanceText.setText(next);
             this.cur = this.nxt;
-            current = current + 1;
+            currentIndex = currentIndex + 1;
         }
-        else if(sortedID != null && current == index){
+        else if(sortedID != null && currentIndex == index){
             save();
 
             this.nxt = gate;
@@ -125,20 +138,40 @@ public class DirectionActivity extends AppCompatActivity {
 
             distanceText.setText(next);
             this.cur = this.nxt;
-            current = current + 1;
+            currentIndex = currentIndex + 1;
         }
         else{
             PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit();
             finish();
         }
+        */
+        //refactor onNextClicked-----------------------------
+        if(focusIndex < sortedID.size() - 1) {
+            focusIndex++;
+            focus = sortedID.get(focusIndex);
+
+            String direction = FindDirection.printPath(currentLocationID, focus);
+
+            TextView directionText = findViewById(R.id.direction_inf);
+            directionText.setText(direction);
+
+            TextView distanceText = findViewById(R.id.distance_inf);
+
+            String next = FindDirection.printDistance(currentLocationID, focus);
+
+            distanceText.setText(next);
+        }
+        else {
+            finish();
+        }
     }
 
     public void stepBackClicked(View view) {
-        if(current > 1){
-            current = current - 2;
-            this.nxt = sortedID.get(current);
-            if(current > 0){
-                this.cur = sortedID.get(current - 1);
+     /*   if(currentIndex > 1){
+            currentIndex = currentIndex - 2;
+            this.nxt = sortedID.get(currentIndex);
+            if(currentIndex > 0){
+                this.cur = sortedID.get(currentIndex - 1);
             }
             else this.cur = gate;
 
@@ -155,8 +188,23 @@ public class DirectionActivity extends AppCompatActivity {
 
             distanceText.setText(next);
             this.cur = this.nxt;
-            current = current + 1;
+            currentIndex = currentIndex + 1;
 
+        } */
+        if(focusIndex > 0) {
+            focusIndex--;
+            focus = sortedID.get(focusIndex);
+
+            String direction = FindDirection.printPath(currentLocationID, focus);
+
+            TextView directionText = findViewById(R.id.direction_inf);
+            directionText.setText(direction);
+
+            TextView distanceText = findViewById(R.id.distance_inf);
+
+            String next = FindDirection.printDistance(currentLocationID, focus);
+
+            distanceText.setText(next);
         }
     }
 
@@ -169,12 +217,16 @@ public class DirectionActivity extends AppCompatActivity {
         final EditText latInput = new EditText(this);
         latInput.setInputType(inputType);
         latInput.setHint("Latitude");
-        latInput.setText("32.746302644092815");
+        //32.74812588554637 Gorillas
+        //32.746302644092815 Crocodiles
+        latInput.setText("32.74812588554637");
 
         final EditText lngInput = new EditText(this);
         lngInput.setInputType(inputType);
         lngInput.setHint("Longitude");
-        lngInput.setText("-117.16659525430192");
+        //-117.17565073656901 Gorillas
+        //-117.16659525430192 Crocodiles
+        lngInput.setText("-117.17565073656901");
 
         final LinearLayout layout = new LinearLayout(this);
         layout.setDividerPadding(8);
@@ -193,6 +245,18 @@ public class DirectionActivity extends AppCompatActivity {
                     var lat = Double.parseDouble(latInput.getText().toString());
                     var lng = Double.parseDouble(lngInput.getText().toString());
                     updateCurrentLocation(lat, lng);
+
+                    cur = findNearestExhibitID(currLocation);
+                    currentIndex = sortedID.indexOf(cur);
+                    Boolean curIsInToBeVisiting = false;
+                    //if cur is not in visited and in tobeVISITING,add
+                    for(ExhibitListItem e : toBeVisiting){
+                        if(nameToParentIDMap.get(e.exhibitName) == cur) {
+                            curIsInToBeVisiting = true;
+                            break;
+                        }
+                    }
+                    if(!visited.contains(cur) && curIsInToBeVisiting )visited.add(cur);
 
                     // todo: if condition change
                     if( findNearestExhibitID(currLocation) != ""
@@ -226,8 +290,6 @@ public class DirectionActivity extends AppCompatActivity {
                     Log.d("TEST", all + "}\n");
 
                      */
-
-
                     /*
                     all = "{";
                     for (String e : nameToParentIDMap.keySet()) {
@@ -235,14 +297,25 @@ public class DirectionActivity extends AppCompatActivity {
                     }
                     Log.d("TEST", all + "}\n");
 
-                     */
+                    "lat": 32.74812588554637,
+                    "lng": -117.17565073656901
+                    */
 
 
                     //create a new routeplanner to contain the new route
-                    RoutePlanner newRoute = new RoutePlanner(exhibitListItems, true);
-                    sortedID = newRoute.getRoute();
 
-                    //show new directions
+                    for (ExhibitListItem exhibit : exhibitListItems){
+                        if(visited != null && !visited.contains(nameToParentIDMap.get(exhibit.exhibitName)))
+                            toBeVisiting.add(exhibit);
+                    }
+                    RoutePlanner newRoute = new RoutePlanner(toBeVisiting, true);
+                    sortedID = newRoute.getRoute();
+                    //   cur = findNearestExhibitID(currLocation);
+                    //   current = sortedID.indexOf(cur);
+                    //   nxt = sortedI
+                    //   System.out.println(cur + " print here");
+
+                    //show new directions UI UPDATE
                     TextView directionText = findViewById(R.id.direction_inf);
                     directionText.setText(FindDirection.printPath(cur ,nxt));
                     TextView distanceText = findViewById(R.id.distance_inf);
@@ -277,7 +350,7 @@ public class DirectionActivity extends AppCompatActivity {
         //Current version is hardcode
         String realLocation = gate;
 
-        current = preferences.getInt("current",0);
+        currentIndex = preferences.getInt("current",0);
         cur = preferences.getString("cur", realLocation);
     }
 
@@ -285,7 +358,7 @@ public class DirectionActivity extends AppCompatActivity {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
 
-        editor.putInt("current", current);
+        editor.putInt("current", currentIndex);
         editor.putString("cur", cur);
 
         editor.apply();
