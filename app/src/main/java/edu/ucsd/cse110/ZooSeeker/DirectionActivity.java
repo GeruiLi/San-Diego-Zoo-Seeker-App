@@ -53,6 +53,10 @@ public class DirectionActivity extends AppCompatActivity {
 
     private ExhibitListItemDao dao;
     private ExhibitTodoDatabase db;
+    private TextView directionText;
+    private TextView distanceText;
+    private String nextExhibitDistance;
+    private String directionToNextExhibit;
 
 
     @SuppressLint("MissingPermission")
@@ -103,12 +107,12 @@ public class DirectionActivity extends AppCompatActivity {
             //store path info from cur to nxt into firstDirection
             String firstDirection = FindDirection.printPath(currentLocationID, focus);
 
-            TextView directionText = findViewById(R.id.direction_inf);
+            directionText = findViewById(R.id.direction_inf);
             directionText.setText(firstDirection);
 
-            TextView distanceText = findViewById(R.id.distance_inf);
-            String next = FindDirection.printDistance(currentLocationID, focus);
-            distanceText.setText(next);
+            distanceText = findViewById(R.id.distance_inf);
+            nextExhibitDistance = FindDirection.printDistance(currentLocationID, focus);
+            distanceText.setText(nextExhibitDistance);
             //this.cur = this.nxt;
         }
 
@@ -120,16 +124,16 @@ public class DirectionActivity extends AppCompatActivity {
 
             this.nxt = sortedID.get(currentIndex);
 
-            String direction = FindDirection.printPath(cur ,nxt);
+            String directionToNextExhibit = FindDirection.printPath(cur ,nxt);
 
             TextView directionText = findViewById(R.id.direction_inf);
-            directionText.setText(direction);
+            directionText.setText(directionToNextExhibit);
 
             TextView distanceText = findViewById(R.id.distance_inf);
 
-            String next = FindDirection.printDistance(cur,nxt);
+            String nextExhibitDistance = FindDirection.printDistance(cur,nxt);
 
-            distanceText.setText(next);
+            distanceText.setText(nextExhibitDistance);
             this.cur = this.nxt;
             currentIndex = currentIndex + 1;
         }
@@ -137,16 +141,16 @@ public class DirectionActivity extends AppCompatActivity {
             save();
 
             this.nxt = gate;
-            String direction = FindDirection.printPath(cur ,nxt);
+            String directionToNextExhibit = FindDirection.printPath(cur ,nxt);
 
             TextView directionText = findViewById(R.id.direction_inf);
-            directionText.setText(direction);
+            directionText.setText(directionToNextExhibit);
 
             TextView distanceText = findViewById(R.id.distance_inf);
 
-            String next = FindDirection.printDistance(cur,nxt);
+            String nextExhibitDistance = FindDirection.printDistance(cur,nxt);
 
-            distanceText.setText(next);
+            distanceText.setText(nextExhibitDistance);
             this.cur = this.nxt;
             currentIndex = currentIndex + 1;
         }
@@ -160,21 +164,15 @@ public class DirectionActivity extends AppCompatActivity {
             focusIndex++;
             focus = sortedID.get(focusIndex);
 
-            String direction = FindDirection.printPath(currentLocationID, focus);
-
-            TextView directionText = findViewById(R.id.direction_inf);
-            directionText.setText(direction);
-
-            TextView distanceText = findViewById(R.id.distance_inf);
-
-            String next = FindDirection.printDistance(currentLocationID, focus);
-
-            distanceText.setText(next);
+            //update instructions to the next exhibit (distance, directions) on UI
+            updateDirectionInfo();
         }
         else {
             finish();
         }
     }
+
+
 
     public void stepBackClicked(View view) {
      /*   if(currentIndex > 1){
@@ -187,16 +185,16 @@ public class DirectionActivity extends AppCompatActivity {
 
             save();
 
-            String direction = FindDirection.printPath(cur,nxt);
+            String directionToNextExhibit = FindDirection.printPath(cur,nxt);
 
             TextView directionText = findViewById(R.id.direction_inf);
-            directionText.setText(direction);
+            directionText.setText(directionToNextExhibit);
 
             TextView distanceText = findViewById(R.id.distance_inf);
 
-            String next = FindDirection.printDistance(cur,nxt);
+            String nextExhibitDistance = FindDirection.printDistance(cur,nxt);
 
-            distanceText.setText(next);
+            distanceText.setText(nextExhibitDistance);
             this.cur = this.nxt;
             currentIndex = currentIndex + 1;
 
@@ -205,16 +203,8 @@ public class DirectionActivity extends AppCompatActivity {
             focusIndex--;
             focus = sortedID.get(focusIndex);
 
-            String direction = FindDirection.printPath(currentLocationID, focus);
-
-            TextView directionText = findViewById(R.id.direction_inf);
-            directionText.setText(direction);
-
-            TextView distanceText = findViewById(R.id.distance_inf);
-
-            String next = FindDirection.printDistance(currentLocationID, focus);
-
-            distanceText.setText(next);
+            //update instructions to the next exhibit (distance, directions) on UI
+            updateDirectionInfo();
         }
     }
 
@@ -230,7 +220,8 @@ public class DirectionActivity extends AppCompatActivity {
         //32.74812588554637 Gorillas
         //32.746302644092815 Crocodiles
         //32.72211788245888 Koi fish
-        latInput.setText("32.72211788245888");
+        //32.73796433208615 Treetops Way / Orangutan Trail
+        latInput.setText("32.73796433208615");
 
         final EditText lngInput = new EditText(this);
         lngInput.setInputType(inputType);
@@ -238,7 +229,8 @@ public class DirectionActivity extends AppCompatActivity {
         //-117.17565073656901 Gorillas
         //-117.16659525430192 Crocodiles
         //-117.15794384136309 Koi fish
-        lngInput.setText("-117.15794384136309");
+        //-117.15781396193616 Treetops Way / Orangutan Trail
+        lngInput.setText("-117.15781396193616");
 
         final LinearLayout layout = new LinearLayout(this);
         layout.setDividerPadding(8);
@@ -267,17 +259,16 @@ public class DirectionActivity extends AppCompatActivity {
                     currentLayout.setDividerPadding(8);
                     currentLayout.setOrientation(LinearLayout.VERTICAL);
 
-                    //detect current User location is on focus location
+                    //detect if current user location is on focus location
                     //trigger: plan unchanged; prompt user you are already on the site
                     if (focus.equals(currentLocationID)) {
                         onsitePrompt(currentLayout);
                     }
 
-
                     //detect current User location is on a later planned exhibit
                     //trigger: prompt "it seems like you are on a planned exhibit already, replan?"
                     //replan: base on the current visiting exhibit (C), how to get to others on our original plan (A, B, D)
-                    //no: move focus to next visiting exhibit (D)
+                    //no: move focus to nextExhibitDistance visiting exhibit (D)
                     //get index of current location, set focus index to current location index +1
                     //set focus to sortedID.get(focusIndex)
                     //currentLocationID  sortedID
@@ -358,6 +349,11 @@ public class DirectionActivity extends AppCompatActivity {
 
 
                      */
+
+                    /*
+                    Section for update displayed directional message
+                     */
+                    updateDirectionInfo();
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> {
                     dialog.cancel();
@@ -423,7 +419,7 @@ public class DirectionActivity extends AppCompatActivity {
                 .setTitle("Onsite!")
                 .setView(linearLayout)
                 .setMessage("You are at the exhibit that you have selected to visit, " +
-                        "click NEXT button to move on to the next exhibit in plan!")
+                        "click NEXT button to move on to the nextExhibitDistance exhibit in plan!")
                 .setPositiveButton("Okay!", (dialog, which) -> {
 
                 });
@@ -455,5 +451,14 @@ public class DirectionActivity extends AppCompatActivity {
         editor.putString("cur", cur);
 
         editor.apply();
+    }
+
+    private void updateDirectionInfo() {
+
+        directionToNextExhibit = FindDirection.printPath(currentLocationID, focus);
+        directionText.setText(directionToNextExhibit);
+        nextExhibitDistance = FindDirection.printDistance(currentLocationID, focus);
+        distanceText.setText(nextExhibitDistance);
+
     }
 }
