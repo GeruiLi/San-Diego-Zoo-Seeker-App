@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -130,6 +131,9 @@ public class DirectionActivity extends AppCompatActivity {
                     .collect(Collectors.toList());
             //Non of the exhibits in plan has been visited
             visitedExhibits = new ArrayList<>();
+
+            //make direction scrollable
+            directionText.setMovementMethod(new ScrollingMovementMethod());
         }
 
     }
@@ -217,6 +221,19 @@ public class DirectionActivity extends AppCompatActivity {
 
     }
 
+    private void markAsVisited() {
+        //如果当前location与remaining plan里的exhibit重合，那么就算用户visited this exhibit in plan
+        //find the ID of current location
+        String currentLocation = findNearestLocationID(currLocation);
+
+        //find out if this location is part of the remaining plan
+        if ( remainingPlan.contains(currentLocation) ) {
+            //mark as visited
+            remainingPlan.remove(currentLocation);
+            visitedExhibits.add(currentLocation);
+        }
+    }
+
     private void mockLocation(EditText latInput, EditText lngInput, LinearLayout layout) {
 
         //Alert Builder - the pop up window
@@ -236,19 +253,13 @@ public class DirectionActivity extends AppCompatActivity {
                     currentLayout.setDividerPadding(8);
                     currentLayout.setOrientation(LinearLayout.VERTICAL);
 
+                    //markAsVisited();
+
                     //detect if current user location is on focus location
                     //trigger: plan unchanged; prompt user you are already on the site
                     if (focus.equals(currentLocationID)) {
                         onsitePrompt(currentLayout);
                     }
-
-                    String all = "{";
-                    for (String e : sortedID) {
-                        all += e + ", ";
-                    }
-                    Log.d("TEST", all + "}\n");
-
-                    Log.d("TEST", focus + "\n");
 
                     //detect current User location is on a later planned exhibit
                     //trigger: prompt "it seems like you are on a planned exhibit already, replan?"
@@ -431,6 +442,17 @@ public class DirectionActivity extends AppCompatActivity {
         //next no longer visit exhibits
         //mock location will work as visiting exhibit
             //radius of detection to mark as visited
+
+        //TODO newly added
+        //find where the user is near to
+        String currentExhibit = nearestExhibitInPlan(currentLocationID);
+        //update focusIndex
+        focusIndex = reorientFocusIndex(currentExhibit, sortedID);
+        //piazza @831
+        visitedExhibits = new ArrayList<>();
+        for (int i = 0; i < focusIndex; i++) {
+            visitedExhibits.add(sortedID.get(i));
+        }
 
         //visitedExhibits 是通过每一次mock location得到的，而不是现在直接生成的
         newSortedPlan.addAll(visitedExhibits);

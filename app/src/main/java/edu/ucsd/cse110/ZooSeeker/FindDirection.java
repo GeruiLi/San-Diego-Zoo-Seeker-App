@@ -25,7 +25,7 @@ public class FindDirection {
     public static String printPath(String start, String goal, boolean detailed){
 
         GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(graphInfoMap, start, goal);
-        String rlt = "You are close to " + findNearestLocationName(currLocation) + ". ";
+        String rlt = "You are close to " + findNearestLocationName(currLocation) + ". \n";
         if(detailed == true){
 
             //future feature for real location
@@ -36,9 +36,9 @@ public class FindDirection {
             List<IdentifiedWeightedEdge> edgeList = path.getEdgeList();
 
             for (int x = 0; x < edgeList.size(); x++) {
-                String s = "Proceed on " + (int)graphInfoMap.getEdgeWeight(edgeList.get(x))
+                String s = "- Proceed on " + (int)graphInfoMap.getEdgeWeight(edgeList.get(x))
                         + " feet along " + edgeInfoMap.get(edgeList.get(x).getId()).street + " towards "
-                        + IDToNameMap.get(verList.get(x+1)) +  ". ";
+                        + IDToNameMap.get(verList.get(x+1)) +  ". \n";
                 rlt = rlt.concat(s);
             }
         }
@@ -57,9 +57,9 @@ public class FindDirection {
                     weight = weight + graphInfoMap.getEdgeWeight(edgeList.get(x + 1));
                     x++;
                 }
-                String s = "Walk " + (int)weight
+                String s = "- Walk " + (int)weight
                         + " ft along " + street + " to "
-                        + IDToNameMap.get(verList.get(x+1)) +  ". ";
+                        + IDToNameMap.get(verList.get(x+1)) +  ". \n";
                 rlt = rlt.concat(s);
             }
         }
