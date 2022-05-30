@@ -22,18 +22,46 @@ import java.util.Map;
 
 public class FindDirection {
 
-    public static String printPath(String start, String goal){
+    public static String printPath(String start, String goal, boolean detailed){
+
         GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(graphInfoMap, start, goal);
-
-        //future feature for real location
         String rlt = "You are close to " + findNearestExhibitID(currLocation) + ". ";
-        //String rlt = "" + testLong + " " + testLati + " ";
-        //rlt += "You are close to " + findNearestExhibitID() + " ";
+        if(detailed == true){
 
-        for (IdentifiedWeightedEdge e : path.getEdgeList()) {
-            String s = "Walk " + (int)graphInfoMap.getEdgeWeight(e)
-                    + " feet along " + edgeInfoMap.get(e.getId()).street + ". ";
-            rlt = rlt.concat(s);
+            //future feature for real location
+            //String rlt = "" + testLong + " " + testLati + " ";
+            //rlt += "You are close to " + findNearestExhibitID() + " ";
+
+            List<String> verList = path.getVertexList();
+            List<IdentifiedWeightedEdge> edgeList = path.getEdgeList();
+
+            for (int x = 0; x < edgeList.size(); x++) {
+                String s = "Proceed on " + (int)graphInfoMap.getEdgeWeight(edgeList.get(x))
+                        + " feet along " + edgeInfoMap.get(edgeList.get(x).getId()).street + " towards "
+                        + IDToNameMap.get(verList.get(x+1)) +  ". ";
+                rlt = rlt.concat(s);
+            }
+        }
+        else{
+
+            //String rlt = "" + testLong + " " + testLati + " ";
+            //rlt += "You are close to " + findNearestExhibitID() + " ";
+
+            List<IdentifiedWeightedEdge> edgeList = path.getEdgeList();
+            List<String> verList = path.getVertexList();
+
+            for (int x = 0; x < edgeList.size(); x++) {
+                double weight = graphInfoMap.getEdgeWeight(edgeList.get(x));
+                String street = edgeInfoMap.get(edgeList.get(x).getId()).street;
+                if(x < edgeList.size() - 1 && street.equals(edgeInfoMap.get(edgeList.get(x + 1).getId()).street)){
+                    weight = weight + graphInfoMap.getEdgeWeight(edgeList.get(x + 1));
+                    x++;
+                }
+                String s = "Walk " + (int)weight
+                        + " ft along " + street + " to "
+                        + IDToNameMap.get(verList.get(x+1)) +  ". ";
+                rlt = rlt.concat(s);
+            }
         }
         return rlt;
     }
@@ -62,7 +90,7 @@ public class FindDirection {
         //loop to get the shortest one from all the node
         for( String key : vertexInfoMap.keySet() ){
             ZooData.VertexInfo exhibitInfo = vertexInfoMap.get(key);
-            Location endPoint=new Location(exhibitInfo.id);
+            Location endPoint = new Location(exhibitInfo.id);
             endPoint.setLatitude(exhibitInfo.lat);
             endPoint.setLongitude(exhibitInfo.lng);
 

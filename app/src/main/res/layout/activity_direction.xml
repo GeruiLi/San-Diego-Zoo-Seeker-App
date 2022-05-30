@@ -22,7 +22,7 @@
         android:layout_height="421dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:textSize="24dp"
+        android:textSize="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,15 +54,39 @@
 
     <Button
         android:id="@+id/mock_btn"
-        android:layout_width="188dp"
-        android:layout_height="41dp"
-        android:text="Mock Location"
+        android:layout_width="137dp"
+        android:layout_height="48dp"
         android:onClick="mockClicked"
+        android:text="Mock Location"
         app:layout_constraintBottom_toTopOf="@+id/direction_inf"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.215"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.484" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/style_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="13dp"
+        android:layout_marginEnd="61dp"
+        android:onClick="styleClicked"
+        android:text="Style"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/skip_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:onClick="SkipClicked"
+        android:text="Skip"
+        app:layout_constraintBottom_toTopOf="@+id/stepBack_btn2"
+        app:layout_constraintEnd_toStartOf="@+id/distance_inf"
+        app:layout_constraintHorizontal_bias="0.846"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

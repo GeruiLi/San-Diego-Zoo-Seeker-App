@@ -64,6 +64,8 @@ public class DirectionActivity extends AppCompatActivity {
     private String nextExhibitDistance;
     private String directionToNextExhibit;
 
+    private boolean detailed;
+
 
     @SuppressLint("MissingPermission")
     @Override
@@ -80,6 +82,8 @@ public class DirectionActivity extends AppCompatActivity {
             currLocation.setLatitude(32.73561);
             currLocation.setLongitude(-117.14936);
         }
+
+        detailed = true;
 
         //initialize tobeVisiting
        /* for(ExhibitListItem e : exhibitListItems){
@@ -111,7 +115,7 @@ public class DirectionActivity extends AppCompatActivity {
             //currentIndex++;
 
             //store path info from cur to nxt into firstDirection
-            String firstDirection = FindDirection.printPath(currentLocationID, focus);
+            String firstDirection = FindDirection.printPath(currentLocationID, focus, detailed);
 
             directionText = findViewById(R.id.direction_inf);
             directionText.setText(firstDirection);
@@ -521,10 +525,15 @@ public class DirectionActivity extends AppCompatActivity {
     private void updateDirectionInfo() {
 
         focus = sortedID.get(focusIndex);
-        directionToNextExhibit = FindDirection.printPath(currentLocationID, focus);
+        directionToNextExhibit = FindDirection.printPath(currentLocationID, focus, detailed);
         directionText.setText(directionToNextExhibit);
         nextExhibitDistance = FindDirection.printDistance(currentLocationID, focus);
         distanceText.setText(nextExhibitDistance);
 
+    }
+
+    public void styleClicked(View view) {
+        this.detailed = !this.detailed;
+        updateDirectionInfo();
     }
 }
