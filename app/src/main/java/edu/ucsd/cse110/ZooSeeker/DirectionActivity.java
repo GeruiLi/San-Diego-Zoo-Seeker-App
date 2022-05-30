@@ -18,7 +18,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
@@ -142,9 +141,9 @@ public class DirectionActivity extends AppCompatActivity {
             focusIndex++;
 
             //whenever next is clicked, the remainingPlan get rid of this exhibit -> mark as visited
-            remainingPlan.remove(focus);
+            //remainingPlan.remove(focus);
             //and visited gets updated with this info to keep track of the user's history
-            visitedExhibits.add(focus);
+            //visitedExhibits.add(focus);
 
             //update instructions to the next exhibit (distance, directions) on UI
             updateDirectionInfo();
@@ -207,6 +206,7 @@ public class DirectionActivity extends AppCompatActivity {
         //conver currentLocation to nearestExhibitInPlan
         String currentVisitingExhibit = nearestExhibitInPlan(currentLocation);
 
+        //filter out current visiting exhibit
         List<String> laterExhibits = remainingPlan
                 .stream()
                 .filter(exhibit -> !(exhibit.equals(currentVisitingExhibit)) )
@@ -241,6 +241,14 @@ public class DirectionActivity extends AppCompatActivity {
                     if (focus.equals(currentLocationID)) {
                         onsitePrompt(currentLayout);
                     }
+
+                    String all = "{";
+                    for (String e : sortedID) {
+                        all += e + ", ";
+                    }
+                    Log.d("TEST", all + "}\n");
+
+                    Log.d("TEST", focus + "\n");
 
                     //detect current User location is on a later planned exhibit
                     //trigger: prompt "it seems like you are on a planned exhibit already, replan?"
@@ -402,10 +410,15 @@ public class DirectionActivity extends AppCompatActivity {
         return cloestExhibitInPlan;
     }
 
-    private int reorientFocusIndex(String currentLocationID, List<String> plan) {
-        //if the currentLocationID is found at index X in plan, return index
-        for (int i = 0; i < plan.size(); i++) {
-            if (plan.get(i).equals(currentLocationID)) {
+    //focus index --
+    //focus = focus index
+    //sortedID.remove(focusIndex + 1)
+    //replan
+
+    private int reorientFocusIndex(String currentLocationID, List<String> sortedPlan) {
+        //if the currentLocationID is found at index X in sortedPlan, return index
+        for (int i = 0; i < sortedPlan.size(); i++) {
+            if (sortedPlan.get(i).equals(currentLocationID)) {
                 return i;
             }
         }
@@ -413,15 +426,37 @@ public class DirectionActivity extends AppCompatActivity {
         return -1;
     }
 
+    private List<String> planB() {
+        List<String> newSortedPlan = new ArrayList<String>();
+        //next no longer visit exhibits
+        //mock location will work as visiting exhibit
+            //radius of detection to mark as visited
+
+        //visitedExhibits 是通过每一次mock location得到的，而不是现在直接生成的
+        newSortedPlan.addAll(visitedExhibits);
+
+        //remainingPlan = sortedID - visitedExhibits
+        for (String visited : visitedExhibits) {
+            remainingPlan.remove(visited);
+        }
+
+        //add remaining plan to newSortedPlan
+        RoutePlanner newRoute = new RoutePlanner(remainingPlan, true);
+        List<String> replannedRemainingPlan = newRoute.getRoute();
+        newSortedPlan.addAll(replannedRemainingPlan);
+        //catch back the remainingPlan from newRoute
+        remainingPlan = replannedRemainingPlan;
+
+        //update focus index and focus
+        //focus should be the first destination of replannedRemainingPlan
+        focus = replannedRemainingPlan.get(0);
+        focusIndex = reorientFocusIndex(focus, newSortedPlan);
+
+        return newSortedPlan;
+    }
+
     private List<String> adjustedPlan() {
         List<String> newSortedPlan = new ArrayList<String>();
-
-        //find out which location is user closest to
-        currentLocationID = findNearestLocationID(currLocation);
-
-        //first destination (focus) becomes the current destination (closest exhibit location in plan)
-        String currentFocusLocation = nearestExhibitInPlan(currentLocationID);
-        focusIndex = reorientFocusIndex(currentFocusLocation, sortedID);
 
         //replace visitedExhibits with a list of all exhibits before focusIndex
         //add them into the newSortedPlan
@@ -436,6 +471,13 @@ public class DirectionActivity extends AppCompatActivity {
         //replan the remainingPlan, append them to the end of PLAN
         RoutePlanner newRoute = new RoutePlanner(remainingPlan, true);
         newSortedPlan.addAll(newRoute.getRoute());
+
+        //find out which location is user closest to
+        currentLocationID = findNearestLocationID(currLocation);
+
+        //first destination (focus) becomes the current destination (closest exhibit location in plan)
+        String currentFocusLocation = nearestExhibitInPlan(currentLocationID);
+        focusIndex = reorientFocusIndex(currentFocusLocation, newSortedPlan);
 
         return newSortedPlan;
     }
@@ -462,7 +504,7 @@ public class DirectionActivity extends AppCompatActivity {
                         ", do you want a replan?")
                 .setPositiveButton("Replan", (dialog, which) -> {
                     //Log.d("TEST", nearestExhibitInPlan());
-                    sortedID = adjustedPlan();
+                    sortedID = planB();
                     updateDirectionInfo();
                 }).setNegativeButton("Cancel", (dialog, which) -> {
                     dialog.cancel();

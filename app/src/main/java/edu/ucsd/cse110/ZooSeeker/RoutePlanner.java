@@ -3,7 +3,7 @@ package edu.ucsd.cse110.ZooSeeker;
 import edu.ucsd.cse110.ZooSeeker.SearchListActivity;
 
 import static edu.ucsd.cse110.ZooSeeker.DirectionActivity.currLocation;
-import static edu.ucsd.cse110.ZooSeeker.FindDirection.findNearestExhibitID;
+import static edu.ucsd.cse110.ZooSeeker.FindDirection.*;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.graphInfoMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.nameToParentIDMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.vertexInfoMap;
@@ -57,7 +57,8 @@ public class RoutePlanner {
             this.start = findGate(vertexInfoMap);
         }
         else {
-            this.start = findNearestExhibitID(currLocation);
+            //originally: this.start = findNearestExhibitID(currLocation);
+            this.start = findNearestLocationID(currLocation);
         }
 
         this.path = new DijkstraShortestPath(graphInfoMap);
