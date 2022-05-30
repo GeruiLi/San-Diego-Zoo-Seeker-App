@@ -10,6 +10,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -85,6 +86,8 @@ public class SearchListActivity extends AppCompatActivity {
 
     // Exhibit name => parent id map
     public static Map<String, String> nameToParentIDMap;
+    // Pair <ParentID, ExhibitID>
+    public static List< Pair<String, String> > parentExhibitIDPair;
 
     // Map exhibits that have parents to their parent exhibit
     public Map<String, String> exhibitToGroup;
@@ -215,6 +218,7 @@ public class SearchListActivity extends AppCompatActivity {
         exhibitToGroup = new HashMap<>();
         nameToParentIDMap = new HashMap<>();
         nameToItemMap = new HashMap<>();
+        parentExhibitIDPair = new ArrayList< Pair<String, String> >();
     }
 
     private void loadJson() {
@@ -329,8 +333,20 @@ public class SearchListActivity extends AppCompatActivity {
     public void onLaunchPlanClicked(View view) {
         //get the list of IDs from exhibitListItems
         List<String> selectedExhibitIDs = new ArrayList<>();
+        String parentID = "";
+        String exhibitID = "";
         for (var exhibit : exhibitListItems) {
-            selectedExhibitIDs.add( nameToParentIDMap.get(exhibit.exhibitName) );
+            //input: parentExhibitIDPair
+            //need: list of pair <parentID, exhibitID>
+            //sort by parentID
+            //return the sorted list
+            //get parent ID
+            parentID = nameToParentIDMap.get(exhibit.exhibitName);
+            //get exhibit ID
+            exhibitID = nameToIDMap.get(exhibit.exhibitName);
+            parentExhibitIDPair.add(new Pair<>(parentID, exhibitID));
+
+            selectedExhibitIDs.add(parentID);
         }
 
         RoutePlanner planner = new RoutePlanner(selectedExhibitIDs, false);

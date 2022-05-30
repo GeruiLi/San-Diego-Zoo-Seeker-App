@@ -253,8 +253,6 @@ public class DirectionActivity extends AppCompatActivity {
                     currentLayout.setDividerPadding(8);
                     currentLayout.setOrientation(LinearLayout.VERTICAL);
 
-                    //markAsVisited();
-
                     //detect if current user location is on focus location
                     //trigger: plan unchanged; prompt user you are already on the site
                     if (focus.equals(currentLocationID)) {
@@ -421,11 +419,6 @@ public class DirectionActivity extends AppCompatActivity {
         return cloestExhibitInPlan;
     }
 
-    //focus index --
-    //focus = focus index
-    //sortedID.remove(focusIndex + 1)
-    //replan
-
     private int reorientFocusIndex(String currentLocationID, List<String> sortedPlan) {
         //if the currentLocationID is found at index X in sortedPlan, return index
         for (int i = 0; i < sortedPlan.size(); i++) {
@@ -437,13 +430,10 @@ public class DirectionActivity extends AppCompatActivity {
         return -1;
     }
 
-    private List<String> planB() {
+    //replan can only work for later selected exhibit in current plan
+    private List<String> adjustedPlan() {
         List<String> newSortedPlan = new ArrayList<String>();
-        //next no longer visit exhibits
-        //mock location will work as visiting exhibit
-            //radius of detection to mark as visited
 
-        //TODO newly added
         //find where the user is near to
         String currentExhibit = nearestExhibitInPlan(currentLocationID);
         //update focusIndex
@@ -477,6 +467,7 @@ public class DirectionActivity extends AppCompatActivity {
         return newSortedPlan;
     }
 
+    /*
     private List<String> adjustedPlan() {
         List<String> newSortedPlan = new ArrayList<String>();
 
@@ -503,6 +494,7 @@ public class DirectionActivity extends AppCompatActivity {
 
         return newSortedPlan;
     }
+    */
 
     private void onsitePrompt(LinearLayout linearLayout) {
         var onsitePromptBuilder = new AlertDialog.Builder(this)
@@ -526,7 +518,7 @@ public class DirectionActivity extends AppCompatActivity {
                         ", do you want a replan?")
                 .setPositiveButton("Replan", (dialog, which) -> {
                     //Log.d("TEST", nearestExhibitInPlan());
-                    sortedID = planB();
+                    sortedID = adjustedPlan();
                     updateDirectionInfo();
                 }).setNegativeButton("Cancel", (dialog, which) -> {
                     dialog.cancel();
@@ -574,5 +566,38 @@ public class DirectionActivity extends AppCompatActivity {
     public void styleClicked(View view) {
         this.detailed = !this.detailed;
         updateDirectionInfo();
+    }
+
+    //focus index --
+    //focus = focus index
+    //sortedID.remove(focusIndex + 1)
+    //replan
+    public void skipClicked(View view) {
+        String skippedExhibit = "";
+
+        //edge case: skip the first in plan
+        if (focusIndex == 0) {
+            skippedExhibit = sortedID.get(focusIndex);
+            sortedID.remove(skippedExhibit);
+            remainingPlan.remove(skippedExhibit);
+
+            //edge case: only one exhibit in plan, and user skipped it
+            if (sortedID.size() == 0) {
+                finish();
+                return;
+            }
+
+            updateDirectionInfo();
+
+            return;
+        }
+
+        focusIndex--;
+        skippedExhibit = sortedID.get(focusIndex + 1);
+        remainingPlan.remove(skippedExhibit);
+        sortedID.remove(skippedExhibit);
+        sortedID = adjustedPlan();
+        updateDirectionInfo();
+
     }
 }

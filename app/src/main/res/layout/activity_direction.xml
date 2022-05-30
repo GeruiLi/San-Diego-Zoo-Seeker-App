@@ -87,7 +87,7 @@
         android:layout_marginStart="48dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:onClick="SkipClicked"
+        android:onClick="skipClicked"
         android:text="Skip"
         app:layout_constraintBottom_toTopOf="@+id/stepBack_btn2"
         app:layout_constraintEnd_toStartOf="@+id/distance_inf"

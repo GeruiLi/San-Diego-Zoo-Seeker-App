@@ -92,7 +92,7 @@ public class RoutePlanner {
             route.add(shortest);
 
             distance.add(Double.toString(min + lastDis) + " feet");
-            lastDis = min;
+            lastDis = min + lastDis;
             userPlan.remove(shortest);
             current = shortest;
         }
