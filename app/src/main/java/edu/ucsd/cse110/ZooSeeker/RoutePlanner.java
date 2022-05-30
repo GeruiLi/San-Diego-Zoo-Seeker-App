@@ -29,6 +29,7 @@ public class RoutePlanner {
     public List<String> userPlan = new ArrayList<String>();
     //initialize idToNameMap
 
+    /*
     public RoutePlanner(List<ExhibitListItem> plan, Boolean rePlan) {
         for(ExhibitListItem exhibit : plan){
             this.userPlan.add(nameToParentIDMap.get(exhibit.exhibitName));
@@ -45,6 +46,22 @@ public class RoutePlanner {
 
         this.path = new DijkstraShortestPath(graphInfoMap);
         buildRoute(this.userPlan, start);
+    }
+    */
+
+    public RoutePlanner(List<String> plan, Boolean rePlan) {
+        route = new ArrayList<>();
+        distance = new ArrayList<>();
+
+        if(!rePlan) {
+            this.start = findGate(vertexInfoMap);
+        }
+        else {
+            this.start = findNearestExhibitID(currLocation);
+        }
+
+        this.path = new DijkstraShortestPath(graphInfoMap);
+        buildRoute(plan, start);
     }
 
     public String findGate(Map<String, ZooData.VertexInfo> vertexInfoMap){

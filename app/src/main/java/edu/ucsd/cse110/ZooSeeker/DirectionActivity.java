@@ -174,7 +174,6 @@ public class DirectionActivity extends AppCompatActivity {
         //refactor onNextClicked-----------------------------
         if(focusIndex < sortedID.size() - 1) {
             focusIndex++;
-            focus = sortedID.get(focusIndex);
 
             //whenever next is clicked, the remainingPlan get rid of this exhibit -> mark as visited
             remainingPlan.remove(focus);
@@ -216,7 +215,6 @@ public class DirectionActivity extends AppCompatActivity {
         } */
         if(focusIndex > 0) {
             focusIndex--;
-            focus = sortedID.get(focusIndex);
 
             //update instructions to the next exhibit (distance, directions) on UI
             updateDirectionInfo();
@@ -390,6 +388,7 @@ public class DirectionActivity extends AppCompatActivity {
         mockWindowBuilder.show();
     }
 
+    /*
     private void replan( LinearLayout linearLayout) {
         var builder2 = new AlertDialog.Builder(this)
                 .setTitle("You are in the wrong track("
@@ -398,14 +397,7 @@ public class DirectionActivity extends AppCompatActivity {
                 //Todo : replan sth
                 .setPositiveButton("replan", (dialog2, which2) -> {
 
-                    /*
-                    String all = "{";
-                    for (String e : distance) {
-                        all += e + ", ";
-                    }
-                    Log.d("TEST", all + "}\n");
 
-                     */
 
 
                     //create a new routeplanner to contain the new route
@@ -427,20 +419,47 @@ public class DirectionActivity extends AppCompatActivity {
                     distanceText.setText(FindDirection.printDistance(cur, nxt));
 
 
-
-                    /*
-                    all = "{";
-                    for (String e : distance) {
-                        all += e + ", ";
-                    }
-                    Log.d("TEST", all + "}\n");
-
-                     */
                 })
                 .setNegativeButton("Cancel", (dialog2, which2) -> {
                     dialog2.cancel();
                 });
         builder2.show();
+    }
+    */
+
+    private int reorientFocusIndex(String currentLocationID, List<String> plan) {
+        //if the currentLocationID is found at index X in plan, return index
+        for (int i = 0; i < plan.size(); i++) {
+            if (plan.get(i).equals(currentLocationID)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private List<String> adjustedPlan() {
+        List<String> newSortedPlan = new ArrayList<String>();
+
+        //first destination (focus) becomes the current destination (closest exhibit location in plan)
+        currentLocationID = findNearestExhibitID(currLocation);
+        focusIndex = reorientFocusIndex(currentLocationID, sortedID);
+
+        //replace visitedExhibits with a list of all exhibits before focusIndex
+        //add them into the newSortedPlan
+        visitedExhibits = sortedID.subList(0, focusIndex);
+        newSortedPlan.addAll(visitedExhibits);
+
+        //get rid of visitedExhibits from remainingPlan
+        for (String visited : visitedExhibits) {
+            remainingPlan.remove(visited);
+        }
+
+        //replan the remainingPlan, append them to the end of PLAN
+        RoutePlanner newRoute = new RoutePlanner(remainingPlan, true);
+        newSortedPlan.addAll(newRoute.getRoute());
+
+        return newSortedPlan;
     }
 
     private void onsitePrompt(LinearLayout linearLayout) {
@@ -448,7 +467,7 @@ public class DirectionActivity extends AppCompatActivity {
                 .setTitle("Onsite!")
                 .setView(linearLayout)
                 .setMessage("You are at the exhibit that you have selected to visit, " +
-                        "click NEXT button to move on to the nextExhibitDistance exhibit in plan!")
+                        "click NEXT button to move on to the exhibit in plan!")
                 .setPositiveButton("Okay!", (dialog, which) -> {
 
                 });
@@ -460,13 +479,14 @@ public class DirectionActivity extends AppCompatActivity {
                 .setTitle("Replan?")
                 .setView(linearLayout)
                 .setMessage("It seems like you are currently closer to: " +
-                        findNearestExhibitName(currLocation) +
+                        findNearestLocationName(currLocation) +
                         ", which is a later selected exhibit on the original plan" +
                         ", do you want a replan?")
                 .setPositiveButton("Replan", (dialog, which) -> {
-
-                }).setNegativeButton("Cancel", (dialog2, which2) -> {
-                    dialog2.cancel();
+                    sortedID = adjustedPlan();
+                    updateDirectionInfo();
+                }).setNegativeButton("Cancel", (dialog, which) -> {
+                    dialog.cancel();
                 });
         replanPromptBuilder.show();
     }
@@ -500,6 +520,7 @@ public class DirectionActivity extends AppCompatActivity {
 
     private void updateDirectionInfo() {
 
+        focus = sortedID.get(focusIndex);
         directionToNextExhibit = FindDirection.printPath(currentLocationID, focus);
         directionText.setText(directionToNextExhibit);
         nextExhibitDistance = FindDirection.printDistance(currentLocationID, focus);

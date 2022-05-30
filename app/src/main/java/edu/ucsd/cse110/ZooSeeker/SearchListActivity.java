@@ -49,6 +49,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 public class SearchListActivity extends AppCompatActivity {
 
@@ -326,7 +327,13 @@ public class SearchListActivity extends AppCompatActivity {
     }
 
     public void onLaunchPlanClicked(View view) {
-        RoutePlanner planner = new RoutePlanner(exhibitListItems, false);
+        //get the list of IDs from exhibitListItems
+        List<String> selectedExhibitIDs = new ArrayList<>();
+        for (var exhibit : exhibitListItems) {
+            selectedExhibitIDs.add( nameToParentIDMap.get(exhibit.exhibitName) );
+        }
+
+        RoutePlanner planner = new RoutePlanner(selectedExhibitIDs, false);
         sortedID = planner.getRoute();
         distance = planner.getDistance();
 
@@ -334,13 +341,20 @@ public class SearchListActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    //TODO fix resume function
     public void onLaunchResumeClicked(View view) {
         if(exhibitListItems.isEmpty()) {
             // display error message
             Utilities.showAlert(this,"You have no plan in progress");
         }
         else {
-            RoutePlanner planner = new RoutePlanner(exhibitListItems, false);
+            //get the list of IDs from exhibitListItems
+            List<String> selectedExhibitIDs = new ArrayList<>();
+            for (var exhibit : exhibitListItems) {
+                selectedExhibitIDs.add( nameToParentIDMap.get(exhibit.exhibitName) );
+            }
+
+            RoutePlanner planner = new RoutePlanner(selectedExhibitIDs, false);
             sortedID = planner.getRoute();
             distance = planner.getDistance();
 
