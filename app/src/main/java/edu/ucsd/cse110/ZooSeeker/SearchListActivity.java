@@ -352,6 +352,7 @@ public class SearchListActivity extends AppCompatActivity {
         RoutePlanner planner = new RoutePlanner(selectedExhibitIDs, false);
         sortedID = planner.getRoute();
         distance = planner.getDistance();
+        planner.buildRouteButReturnExhibitID(parentExhibitIDPair);
 
         Intent intent = new Intent(this, PlanActivity.class);
         startActivity(intent);

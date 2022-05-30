@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -21,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import static edu.ucsd.cse110.ZooSeeker.RoutePlanner.sortedExhibitID;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.IDToNameMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.distance;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.selectedExhibitList;
@@ -45,6 +47,8 @@ public class PlanActivity extends AppCompatActivity {
 
         //initial adapter
         initialAdapterForUI();
+
+        //recyclerView.isNestedScrollingEnabled = false
     }
 
     //initial the adapter for the UI
@@ -67,7 +71,7 @@ public class PlanActivity extends AppCompatActivity {
     //add exhibit in list
     private void addExhbits() {
         exhibitNames = new ArrayList<>();
-        for (String s : sortedID) {
+        for (String s : sortedExhibitID) {
             exhibitNames.add(IDToNameMap.get(s));
         }
     }

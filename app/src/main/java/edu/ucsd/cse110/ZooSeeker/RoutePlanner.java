@@ -8,6 +8,8 @@ import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.graphInfoMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.nameToParentIDMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.vertexInfoMap;
 
+import android.util.Pair;
+
 import androidx.annotation.NonNull;
 
 import org.jgrapht.Graph;
@@ -24,6 +26,8 @@ public class RoutePlanner {
     private List<String> route;
     private List<String> distance;
     private String start;
+
+    public static List<String> sortedExhibitID;
 
     public DijkstraShortestPath path;
     public List<String> userPlan = new ArrayList<String>();
@@ -52,6 +56,7 @@ public class RoutePlanner {
     public RoutePlanner(List<String> plan, Boolean rePlan) {
         route = new ArrayList<>();
         distance = new ArrayList<>();
+        sortedExhibitID = new ArrayList<>();
 
         if(!rePlan) {
             this.start = findGate(vertexInfoMap);
@@ -105,5 +110,25 @@ public class RoutePlanner {
 
     public List<String> getDistance(){
         return this.distance;
+    }
+
+    public void buildRouteButReturnExhibitID(List<Pair<String,String>> parentExhibitIDPair) {
+        String current = findGate(vertexInfoMap);   //set start point to gate
+        while(parentExhibitIDPair.size() != 0){  //find closest exhibit
+            double min = Double.MAX_VALUE;
+            String shortest = "";
+            Pair<String, String> pairOfShortest = null;
+            for(Pair<String, String> pair : parentExhibitIDPair){
+                if(min > path.getPathWeight(current,pair.first)){
+                    shortest = pair.second;
+                    pairOfShortest = pair;
+                    min = path.getPathWeight(current,pair.first);
+                }
+            }
+            sortedExhibitID.add(shortest);  //add the closest exhibit to the returning list
+
+            parentExhibitIDPair.remove(pairOfShortest); //remove closest exhibit from input list
+            current = pairOfShortest.first;
+        }
     }
 }
