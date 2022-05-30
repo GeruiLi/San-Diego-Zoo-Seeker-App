@@ -25,7 +25,7 @@ public class FindDirection {
     public static String printPath(String start, String goal, boolean detailed){
 
         GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(graphInfoMap, start, goal);
-        String rlt = "You are close to " + findNearestExhibitID(currLocation) + ". ";
+        String rlt = "You are close to " + findNearestLocationName(currLocation) + ". ";
         if(detailed == true){
 
             //future feature for real location
@@ -80,6 +80,31 @@ public class FindDirection {
         return rlt;
     }
 
+    public static String findNearestLocationID(Location location) {
+        ZooData.VertexInfo nearestLocation = null;
+        double min = Integer.MAX_VALUE;
+
+        //loop to get the shortest one from all the node
+        for( String key : vertexInfoMap.keySet() ){
+            ZooData.VertexInfo exhibitInfo = vertexInfoMap.get(key);
+            Location endPoint = new Location(exhibitInfo.id);
+            endPoint.setLatitude(exhibitInfo.lat);
+            endPoint.setLongitude(exhibitInfo.lng);
+
+            //calculate shortest one and record, return it
+            double distance = location.distanceTo(endPoint);
+            if(distance < min){
+                min = distance;
+                nearestLocation = exhibitInfo;
+            }
+        }
+
+        if (nearestLocation.hasGroup()) {
+            return nearestLocation.parent_id;
+        }
+        return nearestLocation.id;
+    }
+
     public static String findNearestLocationName(Location location) {
         String result = "";
         double min = Integer.MAX_VALUE;
@@ -94,27 +119,10 @@ public class FindDirection {
             endPoint.setLatitude(exhibitInfo.lat);
             endPoint.setLongitude(exhibitInfo.lng);
 
-            //test
-            {
-                //    "lat": 32.74505139995802,
-                //    "lng": -117.15794384136309
-                //TEST flamingo
-
-                Location testPoint = new Location("TEST");
-                testPoint.setLatitude(32.746302644092815);
-                testPoint.setLongitude(-117.15794384136309);
-
-                /* "lat": 32.746302644092815,
-                "lng": -117.16659525430192*/
-
-                //double distance=testPoint.distanceTo(endPoint);
-            }
-
             //calculate shortest one and record, return it
-            double distance=location.distanceTo(endPoint);
+            double distance = location.distanceTo(endPoint);
             if(distance < min){
                 min = distance;
-                System.out.println(result);
                 result = exhibitInfo.name;
             }
         }

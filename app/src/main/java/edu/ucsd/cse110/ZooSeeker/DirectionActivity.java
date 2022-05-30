@@ -19,6 +19,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
+import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +36,6 @@ public class DirectionActivity extends AppCompatActivity {
     private boolean isResume;
     private int index;
     private int currentIndex;
-    private Graph<String, IdentifiedWeightedEdge> graphInfoMap;
     private Map<String, ZooData.EdgeInfo> edgeInfoMap;
     private String cur;
     private String nxt;
@@ -135,46 +136,7 @@ public class DirectionActivity extends AppCompatActivity {
     }
 
     public void NextClicked(View view) {
-       /* if(sortedID != null && currentIndex < index){
-            //save();  //save cur and current for retain progress
 
-            this.nxt = sortedID.get(currentIndex);
-
-            String directionToNextExhibit = FindDirection.printPath(cur ,nxt);
-
-            TextView directionText = findViewById(R.id.direction_inf);
-            directionText.setText(directionToNextExhibit);
-
-            TextView distanceText = findViewById(R.id.distance_inf);
-
-            String nextExhibitDistance = FindDirection.printDistance(cur,nxt);
-
-            distanceText.setText(nextExhibitDistance);
-            this.cur = this.nxt;
-            currentIndex = currentIndex + 1;
-        }
-        else if(sortedID != null && currentIndex == index){
-            save();
-
-            this.nxt = gate;
-            String directionToNextExhibit = FindDirection.printPath(cur ,nxt);
-
-            TextView directionText = findViewById(R.id.direction_inf);
-            directionText.setText(directionToNextExhibit);
-
-            TextView distanceText = findViewById(R.id.distance_inf);
-
-            String nextExhibitDistance = FindDirection.printDistance(cur,nxt);
-
-            distanceText.setText(nextExhibitDistance);
-            this.cur = this.nxt;
-            currentIndex = currentIndex + 1;
-        }
-        else{
-            PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit();
-            finish();
-        }
-        */
         //refactor onNextClicked-----------------------------
         if(focusIndex < sortedID.size() - 1) {
             focusIndex++;
@@ -190,43 +152,23 @@ public class DirectionActivity extends AppCompatActivity {
         else {
             finish();
         }
+
     }
 
     public void stepBackClicked(View view) {
-     /*   if(currentIndex > 1){
-            currentIndex = currentIndex - 2;
-            this.nxt = sortedID.get(currentIndex);
-            if(currentIndex > 0){
-                this.cur = sortedID.get(currentIndex - 1);
-            }
-            else this.cur = gate;
 
-            save();
-
-            String directionToNextExhibit = FindDirection.printPath(cur,nxt);
-
-            TextView directionText = findViewById(R.id.direction_inf);
-            directionText.setText(directionToNextExhibit);
-
-            TextView distanceText = findViewById(R.id.distance_inf);
-
-            String nextExhibitDistance = FindDirection.printDistance(cur,nxt);
-
-            distanceText.setText(nextExhibitDistance);
-            this.cur = this.nxt;
-            currentIndex = currentIndex + 1;
-
-        } */
         if(focusIndex > 0) {
             focusIndex--;
 
             //update instructions to the next exhibit (distance, directions) on UI
             updateDirectionInfo();
         }
+
     }
 
     //Adapted from DylanLukes' example code
     public void mockClicked(View view) {
+
         var inputType = EditorInfo.TYPE_CLASS_NUMBER
                 | EditorInfo.TYPE_NUMBER_FLAG_SIGNED
                 | EditorInfo.TYPE_NUMBER_FLAG_DECIMAL;
@@ -238,7 +180,8 @@ public class DirectionActivity extends AppCompatActivity {
         //32.746302644092815 Crocodiles
         //32.72211788245888 Koi fish
         //32.73796433208615 Treetops Way / Orangutan Trail
-        latInput.setText("32.74812588554637");
+        //32.74213959255212 Treetops Way / Hippo Trail
+        latInput.setText("32.74213959255212");
 
         final EditText lngInput = new EditText(this);
         lngInput.setInputType(inputType);
@@ -247,7 +190,8 @@ public class DirectionActivity extends AppCompatActivity {
         //-117.16659525430192 Crocodiles
         //-117.15794384136309 Koi fish
         //-117.15781396193616 Treetops Way / Orangutan Trail
-        lngInput.setText("-117.17565073656901");
+        //-117.16066409380507 Treetops Way / Hippo Trail
+        lngInput.setText("-117.16066409380507");
 
         final LinearLayout layout = new LinearLayout(this);
         layout.setDividerPadding(8);
@@ -256,19 +200,25 @@ public class DirectionActivity extends AppCompatActivity {
         layout.addView(lngInput);
 
         mockLocation(latInput, lngInput, layout);
+
     }
 
     private boolean onLaterSelectedExhibit(String focus, String currentLocation) {
+        //conver currentLocation to nearestExhibitInPlan
+        String currentVisitingExhibit = nearestExhibitInPlan(currentLocation);
+
         List<String> laterExhibits = remainingPlan
                 .stream()
-                .filter(exhibit -> !(exhibit.equals(currentLocation)) )
+                .filter(exhibit -> !(exhibit.equals(currentVisitingExhibit)) )
                 .collect(Collectors.toList());
 
         //check if focus is on on a later selected exhibit in plan (excluding currentLocation)
         return laterExhibits.contains(focus);
+
     }
 
     private void mockLocation(EditText latInput, EditText lngInput, LinearLayout layout) {
+
         //Alert Builder - the pop up window
         var mockWindowBuilder = new AlertDialog.Builder(this)
                 .setTitle("Inject a Mock Location")
@@ -279,7 +229,7 @@ public class DirectionActivity extends AppCompatActivity {
                     updateCurrentLocation(lat, lng);
 
                     //update currentLocationID (current exhibit ID) according to currLocation (lat, lng)
-                    currentLocationID = findNearestExhibitID(currLocation);
+                    currentLocationID = findNearestLocationID(currLocation);
 
                     //declare and initialize currentLayout for prompt messages
                     final LinearLayout currentLayout = new LinearLayout(this);
@@ -390,6 +340,7 @@ public class DirectionActivity extends AppCompatActivity {
                     dialog.cancel();
                 });
         mockWindowBuilder.show();
+
     }
 
     /*
@@ -431,6 +382,26 @@ public class DirectionActivity extends AppCompatActivity {
     }
     */
 
+    private String nearestExhibitInPlan(String currentLocationID) {
+        String cloestExhibitInPlan = "";
+        double minDistance = Double.MAX_VALUE;
+        GraphPath<String, IdentifiedWeightedEdge> path;
+
+        for(String exhibitID : sortedID) {
+            //find path of closetExhibitID to currentLocationID and check if the distance is less than minDistance
+            //if yes, update minDistance
+
+            path = DijkstraShortestPath.findPathBetween(graphInfoMap, currentLocationID, exhibitID);
+
+            if(path.getWeight() < minDistance) {
+                minDistance = path.getWeight();
+                cloestExhibitInPlan = exhibitID;
+            }
+        }
+
+        return cloestExhibitInPlan;
+    }
+
     private int reorientFocusIndex(String currentLocationID, List<String> plan) {
         //if the currentLocationID is found at index X in plan, return index
         for (int i = 0; i < plan.size(); i++) {
@@ -445,9 +416,12 @@ public class DirectionActivity extends AppCompatActivity {
     private List<String> adjustedPlan() {
         List<String> newSortedPlan = new ArrayList<String>();
 
+        //find out which location is user closest to
+        currentLocationID = findNearestLocationID(currLocation);
+
         //first destination (focus) becomes the current destination (closest exhibit location in plan)
-        currentLocationID = findNearestExhibitID(currLocation);
-        focusIndex = reorientFocusIndex(currentLocationID, sortedID);
+        String currentFocusLocation = nearestExhibitInPlan(currentLocationID);
+        focusIndex = reorientFocusIndex(currentFocusLocation, sortedID);
 
         //replace visitedExhibits with a list of all exhibits before focusIndex
         //add them into the newSortedPlan
@@ -482,11 +456,12 @@ public class DirectionActivity extends AppCompatActivity {
         var replanPromptBuilder = new AlertDialog.Builder(this)
                 .setTitle("Replan?")
                 .setView(linearLayout)
-                .setMessage("It seems like you are currently closer to: " +
+                .setMessage("It seems like you are currently near " +
                         findNearestLocationName(currLocation) +
-                        ", which is a later selected exhibit on the original plan" +
+                        ", which is closer to a later selected exhibit on the original plan" +
                         ", do you want a replan?")
                 .setPositiveButton("Replan", (dialog, which) -> {
+                    //Log.d("TEST", nearestExhibitInPlan());
                     sortedID = adjustedPlan();
                     updateDirectionInfo();
                 }).setNegativeButton("Cancel", (dialog, which) -> {
