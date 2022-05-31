@@ -357,7 +357,16 @@ public class SearchListActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, PlanActivity.class);
 
-        startActivity(intent);
+        if (sortedID.size() > 0) {
+            startActivity(intent);
+        }
+        else {
+            Toast
+                    .makeText(SearchListActivity.this,
+                            "You have to add at least one exhibit to start plan",
+                            Toast.LENGTH_SHORT)
+                    .show();
+        }
 
         //set resume to be visible
         resumeBtn.setVisibility(View.VISIBLE);
