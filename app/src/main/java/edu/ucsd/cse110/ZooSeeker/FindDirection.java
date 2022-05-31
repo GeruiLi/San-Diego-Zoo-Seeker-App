@@ -61,7 +61,7 @@ public class FindDirection {
                         + " ft along " + street + " to "
                         + IDToNameMap.get(verList.get(x+1)) +  ". \n";
                 rlt = rlt.concat(s);
-                last = 0;
+                last = 0 ;
             }
         }
         return rlt;
