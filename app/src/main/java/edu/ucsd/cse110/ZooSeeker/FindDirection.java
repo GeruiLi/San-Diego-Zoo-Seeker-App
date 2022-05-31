@@ -49,18 +49,19 @@ public class FindDirection {
 
             List<IdentifiedWeightedEdge> edgeList = path.getEdgeList();
             List<String> verList = path.getVertexList();
-
+            double last = 0;
             for (int x = 0; x < edgeList.size(); x++) {
                 double weight = graphInfoMap.getEdgeWeight(edgeList.get(x));
                 String street = edgeInfoMap.get(edgeList.get(x).getId()).street;
                 if(x < edgeList.size() - 1 && street.equals(edgeInfoMap.get(edgeList.get(x + 1).getId()).street)){
-                    weight = weight + graphInfoMap.getEdgeWeight(edgeList.get(x + 1));
-                    x++;
+                    last = last + weight;
+                    continue;
                 }
-                String s = "\n- Walk " + (int)weight
+                String s = "\n- Walk " + (int)(weight + last)
                         + " ft along " + street + " to "
                         + IDToNameMap.get(verList.get(x+1)) +  ". \n";
                 rlt = rlt.concat(s);
+                last = 0;
             }
         }
         return rlt;
