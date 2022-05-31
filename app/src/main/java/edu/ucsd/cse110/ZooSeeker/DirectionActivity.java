@@ -221,7 +221,7 @@ public class DirectionActivity extends AppCompatActivity {
 
     private boolean onLaterSelectedExhibit(String focus, String currentLocation) {
         //conver currentLocation to nearestExhibitInPlan
-        String currentVisitingExhibit = nearestExhibitInPlan(currentLocation);
+        String currentVisitingExhibit = nearestExhibitInPlan(currentLocation, sortedID);
 
         //filter out current visiting exhibit
         List<String> laterExhibits = remainingPlan
@@ -412,12 +412,12 @@ public class DirectionActivity extends AppCompatActivity {
     }
     */
 
-    private String nearestExhibitInPlan(String currentLocationID) {
+    private String nearestExhibitInPlan(String currentLocationID, List<String> plan) {
         String cloestExhibitInPlan = "";
         double minDistance = Double.MAX_VALUE;
         GraphPath<String, IdentifiedWeightedEdge> path;
 
-        for(String exhibitID : sortedID) {
+        for(String exhibitID : plan) {
             //find path of closetExhibitID to currentLocationID and check if the distance is less than minDistance
             //if yes, update minDistance
 
@@ -448,7 +448,7 @@ public class DirectionActivity extends AppCompatActivity {
         List<String> newSortedPlan = new ArrayList<String>();
 
         //find where the user is near to
-        String currentExhibit = nearestExhibitInPlan(currentLocationID);
+        String currentExhibit = nearestExhibitInPlan(currentLocationID, sortedID);
         //update focusIndex
         focusIndex = reorientFocusIndex(currentExhibit, sortedID);
         //piazza @831
@@ -469,7 +469,7 @@ public class DirectionActivity extends AppCompatActivity {
         List<String> replannedRemainingPlan = newRoute.getRoute();
         newSortedPlan.addAll(replannedRemainingPlan);
         //catch back the remainingPlan from newRoute
-        remainingPlan = replannedRemainingPlan;
+        remainingPlan.addAll(replannedRemainingPlan);
 
         //update focus index and focus
         //focus should be the first destination of replannedRemainingPlan
@@ -482,34 +482,27 @@ public class DirectionActivity extends AppCompatActivity {
         return newSortedPlan;
     }
 
-    /*
-    private List<String> adjustedPlan() {
+    private List<String> adjustedSkipPlan() {
         List<String> newSortedPlan = new ArrayList<String>();
 
-        //replace visitedExhibits with a list of all exhibits before focusIndex
-        //add them into the newSortedPlan
-        visitedExhibits = sortedID.subList(0, focusIndex);
-        newSortedPlan.addAll(visitedExhibits);
-
-        //get rid of visitedExhibits from remainingPlan
-        for (String visited : visitedExhibits) {
-            remainingPlan.remove(visited);
-        }
-
-        //replan the remainingPlan, append them to the end of PLAN
-        RoutePlanner newRoute = new RoutePlanner(remainingPlan, true);
+        //replan the sortedID
+        String gateID = ZooData.findGate(vertexInfoMap);
+        sortedID.remove(gateID);
+        RoutePlanner newRoute = new RoutePlanner(sortedID, true);
         newSortedPlan.addAll(newRoute.getRoute());
 
         //find out which location is user closest to
         currentLocationID = findNearestLocationID(currLocation);
 
         //first destination (focus) becomes the current destination (closest exhibit location in plan)
-        String currentFocusLocation = nearestExhibitInPlan(currentLocationID);
+        String currentFocusLocation = nearestExhibitInPlan(currentLocationID, newSortedPlan);
         focusIndex = reorientFocusIndex(currentFocusLocation, newSortedPlan);
+
+        //add gateID back to the new sorted plan
+        newSortedPlan.add(gateID);
 
         return newSortedPlan;
     }
-    */
 
     private void onsitePrompt(LinearLayout linearLayout) {
         var onsitePromptBuilder = new AlertDialog.Builder(this)
@@ -622,7 +615,7 @@ public class DirectionActivity extends AppCompatActivity {
         skippedExhibit = sortedID.get(focusIndex + 1);
         remainingPlan.remove(skippedExhibit);
         sortedID.remove(skippedExhibit);
-        sortedID = adjustedPlan();
+        sortedID = adjustedSkipPlan();
         updateDirectionInfo();
 
     }
