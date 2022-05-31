@@ -66,6 +66,8 @@ public class DirectionActivity extends AppCompatActivity {
     private String directionToNextExhibit;
 
     private boolean detailed;
+    private float latitude;
+    private float longitude;
 
 
     @SuppressLint("MissingPermission")
@@ -105,12 +107,17 @@ public class DirectionActivity extends AppCompatActivity {
             //retain progress
             //if(!isResume) PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit();
 
-            index = sortedID.size();
+            //index = sortedID.size();
             //load(); //if not resume,set current = 0, set cur = gate_id
 
             currentLocationID = gate;   //set current location to gate
             focusIndex = 0;
             focus = sortedID.get(focusIndex);   //set focus to first exhibit in sortedID
+
+            if (isResume) {
+                //load latitude, longitude, focusIndex, focus
+                load();
+            }
 
             //this.nxt = sortedID.get(currentIndex);  //current is 0, get first element in sortedID
             //currentIndex++;
@@ -253,6 +260,9 @@ public class DirectionActivity extends AppCompatActivity {
 
                     //update currentLocationID (current exhibit ID) according to currLocation (lat, lng)
                     currentLocationID = findNearestLocationID(currLocation);
+
+                    //save current information for future resume
+                    save();
 
                     //declare and initialize currentLayout for prompt messages
                     final LinearLayout currentLayout = new LinearLayout(this);
@@ -542,18 +552,27 @@ public class DirectionActivity extends AppCompatActivity {
 
         //Future connect to real location
         //Current version is hardcode
-        String realLocation = gate;
 
-        currentIndex = preferences.getInt("current",0);
-        cur = preferences.getString("cur", realLocation);
+        latitude = preferences.getFloat("latitude", 32.73561f);
+        longitude = preferences.getFloat("longitude",-117.14936f);
+        focusIndex = preferences.getInt("focusIndex", 0);
+        focus = sortedID.get(focusIndex);
+
+        //load currLocation from saved latitude and longitude
+        currLocation.setLatitude(latitude);
+        currLocation.setLongitude(longitude);
+
+        currentLocationID = findNearestLocationID(currLocation);
+
     }
 
     public void save() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
 
-        editor.putInt("current", currentIndex);
-        editor.putString("cur", cur);
+        editor.putFloat("latitude", (float) currLocation.getLatitude());
+        editor.putFloat("longitude", (float) currLocation.getLongitude());
+        editor.putInt("focusIndex", focusIndex);
 
         editor.apply();
     }
@@ -565,6 +584,8 @@ public class DirectionActivity extends AppCompatActivity {
         directionText.setText(directionToNextExhibit);
         nextExhibitDistance = FindDirection.printDistance(currentLocationID, focus);
         distanceText.setText(nextExhibitDistance);
+
+        save();
 
     }
 
