@@ -1,7 +1,5 @@
 package edu.ucsd.cse110.ZooSeeker;
 
-
-
 import static edu.ucsd.cse110.ZooSeeker.DirectionActivity.currLocation;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.IDToNameMap;
 import static edu.ucsd.cse110.ZooSeeker.SearchListActivity.nameToParentIDMap;
@@ -25,7 +23,7 @@ public class FindDirection {
     public static String printPath(String start, String goal, boolean detailed){
 
         GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(graphInfoMap, start, goal);
-        String displayedPath = "You are close to " + findNearestLocationName(currLocation) + ". \n";
+        String rlt = "You are close to " + findNearestLocationName(currLocation) + ". \n";
         if(detailed == true){
 
             //future feature for real location
@@ -39,7 +37,7 @@ public class FindDirection {
                 String s = "\n- Proceed on " + (int)graphInfoMap.getEdgeWeight(edgeList.get(x))
                         + " feet along " + edgeInfoMap.get(edgeList.get(x).getId()).street + " towards "
                         + IDToNameMap.get(verList.get(x+1)) +  ". \n";
-                displayedPath = displayedPath.concat(s);
+                rlt = rlt.concat(s);
             }
         }
         else{
@@ -49,21 +47,22 @@ public class FindDirection {
 
             List<IdentifiedWeightedEdge> edgeList = path.getEdgeList();
             List<String> verList = path.getVertexList();
-
+            double last = 0;
             for (int x = 0; x < edgeList.size(); x++) {
                 double weight = graphInfoMap.getEdgeWeight(edgeList.get(x));
                 String street = edgeInfoMap.get(edgeList.get(x).getId()).street;
                 if(x < edgeList.size() - 1 && street.equals(edgeInfoMap.get(edgeList.get(x + 1).getId()).street)){
-                    weight = weight + graphInfoMap.getEdgeWeight(edgeList.get(x + 1));
-                    x++;
+                    last = last + weight;
+                    continue;
                 }
-                String s = "\n- Walk " + (int)weight
+                String s = "\n- Walk " + (int)(weight + last)
                         + " ft along " + street + " to "
                         + IDToNameMap.get(verList.get(x+1)) +  ". \n";
-                displayedPath = displayedPath.concat(s);
+                rlt = rlt.concat(s);
+                last = 0 ;
             }
         }
-        return displayedPath;
+        return rlt;
     }
 
     public static String printDistance(String start, String goal){

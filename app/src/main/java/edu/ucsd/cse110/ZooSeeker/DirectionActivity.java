@@ -129,6 +129,10 @@ public class DirectionActivity extends AppCompatActivity {
             //get a deep copy of sortedID - Non of the exhibits in plan has been visited
             remainingPlan = sortedID.stream()
                     .collect(Collectors.toList());
+
+            //add exit gate to the sorted plan
+            sortedID.add(ZooData.findGate(vertexInfoMap));
+
             //Non of the exhibits in plan has been visited
             visitedExhibits = new ArrayList<>();
 
@@ -153,7 +157,9 @@ public class DirectionActivity extends AppCompatActivity {
             updateDirectionInfo();
         }
         else {
+
             finish();
+
         }
 
     }
@@ -318,9 +324,6 @@ public class DirectionActivity extends AppCompatActivity {
 
                     */
 
-
-
-
                     /*
 
                     //find the user's current nearest exhibit
@@ -444,7 +447,6 @@ public class DirectionActivity extends AppCompatActivity {
             visitedExhibits.add(sortedID.get(i));
         }
 
-        //visitedExhibits 是通过每一次mock location得到的，而不是现在直接生成的
         newSortedPlan.addAll(visitedExhibits);
 
         //remainingPlan = sortedID - visitedExhibits
@@ -463,6 +465,9 @@ public class DirectionActivity extends AppCompatActivity {
         //focus should be the first destination of replannedRemainingPlan
         focus = replannedRemainingPlan.get(0);
         focusIndex = reorientFocusIndex(focus, newSortedPlan);
+
+        //add exit gate to the sorted plan
+        newSortedPlan.add(ZooData.findGate(vertexInfoMap));
 
         return newSortedPlan;
     }
