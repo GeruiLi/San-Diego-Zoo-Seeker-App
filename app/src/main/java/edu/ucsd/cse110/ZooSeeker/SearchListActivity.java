@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -100,6 +101,9 @@ public class SearchListActivity extends AppCompatActivity {
 
     // ArrayList<String> that store all selected exhibits
     public static List<String> selectedExhibitList;
+
+    // Reference to resumeBtn
+    public static Button resumeBtn;
 
     // String that store the selectedExhibit
     private String selectedExhibit;
@@ -219,6 +223,7 @@ public class SearchListActivity extends AppCompatActivity {
         nameToParentIDMap = new HashMap<>();
         nameToItemMap = new HashMap<>();
         parentExhibitIDPair = new ArrayList< Pair<String, String> >();
+        resumeBtn = findViewById(R.id.resume_btn);
     }
 
     private void loadJson() {
@@ -336,10 +341,6 @@ public class SearchListActivity extends AppCompatActivity {
         String parentID = "";
         String exhibitID = "";
         for (var exhibit : exhibitListItems) {
-            //input: parentExhibitIDPair
-            //need: list of pair <parentID, exhibitID>
-            //sort by parentID
-            //return the sorted list
             //get parent ID
             parentID = nameToParentIDMap.get(exhibit.exhibitName);
             //get exhibit ID
@@ -355,11 +356,18 @@ public class SearchListActivity extends AppCompatActivity {
         planner.buildRouteButReturnExhibitID(parentExhibitIDPair);
 
         Intent intent = new Intent(this, PlanActivity.class);
+
         startActivity(intent);
+
+        //set resume to be visible
+        resumeBtn.setVisibility(View.VISIBLE);
     }
 
     //TODO fix resume function
     public void onLaunchResumeClicked(View view) {
+        //when sortedID is not identical to the exhibitList in data base
+        //resume should not be activated
+
         if(exhibitListItems.isEmpty()) {
             // display error message
             Utilities.showAlert(this,"You have no plan in progress");
