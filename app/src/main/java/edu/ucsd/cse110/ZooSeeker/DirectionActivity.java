@@ -66,6 +66,8 @@ public class DirectionActivity extends AppCompatActivity {
     private String directionToNextExhibit;
 
     private boolean detailed;
+    private float latitude;
+    private float longitude;
 
 
     @SuppressLint("MissingPermission")
@@ -105,12 +107,17 @@ public class DirectionActivity extends AppCompatActivity {
             //retain progress
             //if(!isResume) PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit();
 
-            index = sortedID.size();
+            //index = sortedID.size();
             //load(); //if not resume,set current = 0, set cur = gate_id
 
             currentLocationID = gate;   //set current location to gate
             focusIndex = 0;
             focus = sortedID.get(focusIndex);   //set focus to first exhibit in sortedID
+
+            if (isResume) {
+                //load latitude, longitude, focusIndex, focus
+                load();
+            }
 
             //this.nxt = sortedID.get(currentIndex);  //current is 0, get first element in sortedID
             //currentIndex++;
@@ -129,6 +136,10 @@ public class DirectionActivity extends AppCompatActivity {
             //get a deep copy of sortedID - Non of the exhibits in plan has been visited
             remainingPlan = sortedID.stream()
                     .collect(Collectors.toList());
+
+            //add exit gate to the sorted plan
+            sortedID.add(ZooData.findGate(vertexInfoMap));
+
             //Non of the exhibits in plan has been visited
             visitedExhibits = new ArrayList<>();
 
@@ -153,7 +164,9 @@ public class DirectionActivity extends AppCompatActivity {
             updateDirectionInfo();
         }
         else {
+
             finish();
+
         }
 
     }
@@ -208,7 +221,7 @@ public class DirectionActivity extends AppCompatActivity {
 
     private boolean onLaterSelectedExhibit(String focus, String currentLocation) {
         //conver currentLocation to nearestExhibitInPlan
-        String currentVisitingExhibit = nearestExhibitInPlan(currentLocation);
+        String currentVisitingExhibit = nearestExhibitInPlan(currentLocation, sortedID);
 
         //filter out current visiting exhibit
         List<String> laterExhibits = remainingPlan
@@ -247,6 +260,9 @@ public class DirectionActivity extends AppCompatActivity {
 
                     //update currentLocationID (current exhibit ID) according to currLocation (lat, lng)
                     currentLocationID = findNearestLocationID(currLocation);
+
+                    //save current information for future resume
+                    save();
 
                     //declare and initialize currentLayout for prompt messages
                     final LinearLayout currentLayout = new LinearLayout(this);
@@ -317,9 +333,6 @@ public class DirectionActivity extends AppCompatActivity {
                     focus = sortedID.get(focusIndex);
 
                     */
-
-
-
 
                     /*
 
@@ -399,12 +412,12 @@ public class DirectionActivity extends AppCompatActivity {
     }
     */
 
-    private String nearestExhibitInPlan(String currentLocationID) {
+    private String nearestExhibitInPlan(String currentLocationID, List<String> plan) {
         String cloestExhibitInPlan = "";
         double minDistance = Double.MAX_VALUE;
         GraphPath<String, IdentifiedWeightedEdge> path;
 
-        for(String exhibitID : sortedID) {
+        for(String exhibitID : plan) {
             //find path of closetExhibitID to currentLocationID and check if the distance is less than minDistance
             //if yes, update minDistance
 
@@ -435,7 +448,7 @@ public class DirectionActivity extends AppCompatActivity {
         List<String> newSortedPlan = new ArrayList<String>();
 
         //find where the user is near to
-        String currentExhibit = nearestExhibitInPlan(currentLocationID);
+        String currentExhibit = nearestExhibitInPlan(currentLocationID, sortedID);
         //update focusIndex
         focusIndex = reorientFocusIndex(currentExhibit, sortedID);
         //piazza @831
@@ -444,7 +457,6 @@ public class DirectionActivity extends AppCompatActivity {
             visitedExhibits.add(sortedID.get(i));
         }
 
-        //visitedExhibits 是通过每一次mock location得到的，而不是现在直接生成的
         newSortedPlan.addAll(visitedExhibits);
 
         //remainingPlan = sortedID - visitedExhibits
@@ -457,44 +469,40 @@ public class DirectionActivity extends AppCompatActivity {
         List<String> replannedRemainingPlan = newRoute.getRoute();
         newSortedPlan.addAll(replannedRemainingPlan);
         //catch back the remainingPlan from newRoute
-        remainingPlan = replannedRemainingPlan;
+        remainingPlan.addAll(replannedRemainingPlan);
 
         //update focus index and focus
         //focus should be the first destination of replannedRemainingPlan
         focus = replannedRemainingPlan.get(0);
         focusIndex = reorientFocusIndex(focus, newSortedPlan);
 
+        //add exit gate to the sorted plan
+        newSortedPlan.add(ZooData.findGate(vertexInfoMap));
+
         return newSortedPlan;
     }
 
-    /*
-    private List<String> adjustedPlan() {
+    private List<String> adjustedSkipPlan() {
         List<String> newSortedPlan = new ArrayList<String>();
 
-        //replace visitedExhibits with a list of all exhibits before focusIndex
-        //add them into the newSortedPlan
-        visitedExhibits = sortedID.subList(0, focusIndex);
-        newSortedPlan.addAll(visitedExhibits);
-
-        //get rid of visitedExhibits from remainingPlan
-        for (String visited : visitedExhibits) {
-            remainingPlan.remove(visited);
-        }
-
-        //replan the remainingPlan, append them to the end of PLAN
-        RoutePlanner newRoute = new RoutePlanner(remainingPlan, true);
+        //replan the sortedID
+        String gateID = ZooData.findGate(vertexInfoMap);
+        sortedID.remove(gateID);
+        RoutePlanner newRoute = new RoutePlanner(sortedID, true);
         newSortedPlan.addAll(newRoute.getRoute());
 
         //find out which location is user closest to
         currentLocationID = findNearestLocationID(currLocation);
 
         //first destination (focus) becomes the current destination (closest exhibit location in plan)
-        String currentFocusLocation = nearestExhibitInPlan(currentLocationID);
+        String currentFocusLocation = nearestExhibitInPlan(currentLocationID, newSortedPlan);
         focusIndex = reorientFocusIndex(currentFocusLocation, newSortedPlan);
+
+        //add gateID back to the new sorted plan
+        newSortedPlan.add(gateID);
 
         return newSortedPlan;
     }
-    */
 
     private void onsitePrompt(LinearLayout linearLayout) {
         var onsitePromptBuilder = new AlertDialog.Builder(this)
@@ -537,18 +545,27 @@ public class DirectionActivity extends AppCompatActivity {
 
         //Future connect to real location
         //Current version is hardcode
-        String realLocation = gate;
 
-        currentIndex = preferences.getInt("current",0);
-        cur = preferences.getString("cur", realLocation);
+        latitude = preferences.getFloat("latitude", 32.73561f);
+        longitude = preferences.getFloat("longitude",-117.14936f);
+        focusIndex = preferences.getInt("focusIndex", 0);
+        focus = sortedID.get(focusIndex);
+
+        //load currLocation from saved latitude and longitude
+        currLocation.setLatitude(latitude);
+        currLocation.setLongitude(longitude);
+
+        currentLocationID = findNearestLocationID(currLocation);
+
     }
 
     public void save() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
 
-        editor.putInt("current", currentIndex);
-        editor.putString("cur", cur);
+        editor.putFloat("latitude", (float) currLocation.getLatitude());
+        editor.putFloat("longitude", (float) currLocation.getLongitude());
+        editor.putInt("focusIndex", focusIndex);
 
         editor.apply();
     }
@@ -560,6 +577,8 @@ public class DirectionActivity extends AppCompatActivity {
         directionText.setText(directionToNextExhibit);
         nextExhibitDistance = FindDirection.printDistance(currentLocationID, focus);
         distanceText.setText(nextExhibitDistance);
+
+        save();
 
     }
 
@@ -596,7 +615,7 @@ public class DirectionActivity extends AppCompatActivity {
         skippedExhibit = sortedID.get(focusIndex + 1);
         remainingPlan.remove(skippedExhibit);
         sortedID.remove(skippedExhibit);
-        sortedID = adjustedPlan();
+        sortedID = adjustedSkipPlan();
         updateDirectionInfo();
 
     }

@@ -61,6 +61,7 @@
         android:layout_height="48dp"
         android:onClick="onLaunchResumeClicked"
         android:text="Resume"
+        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/exhibitItems"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.117"
