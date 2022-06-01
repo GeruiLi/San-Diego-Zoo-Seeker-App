@@ -70,7 +70,7 @@ public class RoutePlanner {
         buildRoute(plan, start);
     }
 
-    public String findGate(Map<String, ZooData.VertexInfo> vertexInfoMap){
+    public static String findGate(Map<String, ZooData.VertexInfo> vertexInfoMap){
         ZooData.VertexInfo exhibitInfo;
         for (String key : vertexInfoMap.keySet()) {
             exhibitInfo = vertexInfoMap.get(key);
