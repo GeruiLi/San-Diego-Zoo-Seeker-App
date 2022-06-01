@@ -30,7 +30,7 @@ public class FindDirection {
     }
 
     // print brief information
-    private static String printBrief(GraphPath<String,
+    public static String printBrief(GraphPath<String,
             IdentifiedWeightedEdge> path, String rlt) {
         List<IdentifiedWeightedEdge> edgeList = path.getEdgeList();
         List<String> verList = path.getVertexList();
@@ -54,7 +54,7 @@ public class FindDirection {
         return rlt;
     }
 
-    private static String printDetail(GraphPath<String,
+    public static String printDetail(GraphPath<String,
             IdentifiedWeightedEdge> path, String rlt) {
         List<String> verList = path.getVertexList();
         List<IdentifiedWeightedEdge> edgeList = path.getEdgeList();
