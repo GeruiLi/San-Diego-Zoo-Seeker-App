@@ -28,7 +28,7 @@ public class FindDirectionTest {
 
     @Rule
     public ActivityScenarioRule<SearchListActivity> scenarioRule
-            = new ActivityScenarioRule<>(SearchListActivity.class);
+            = new ActivityScenarioRule<>(SearchListActivity.class) ;
 
     @Test
     public void test_print_detailed(){
