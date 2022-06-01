@@ -24,17 +24,18 @@ import java.util.Map;
 
 
 @RunWith(AndroidJUnit4.class)
-public class FindDirectionTest {
+public class PrintPathTest {
 
     @Rule
     public ActivityScenarioRule<SearchListActivity> scenarioRule
             = new ActivityScenarioRule<>(SearchListActivity.class);
 
     @Test
-    public void test_print_detailed(){
+    public void test_print_brief() {
         ActivityScenario<SearchListActivity> scenario = scenarioRule.getScenario();
 
         scenario.moveToState(Lifecycle.State.CREATED);
+
         scenario.onActivity(activity -> {
             String start = "entrance_exit_gate";
             String goal = "intxn_front_treetops";
@@ -42,11 +43,12 @@ public class FindDirectionTest {
             GraphPath<String, IdentifiedWeightedEdge> path =
                     DijkstraShortestPath.findPathBetween(graphInfoMap, start, goal);
 
-            String s = FindDirection.printDetail(path, "");
+            String s = FindDirection.printBrief(path, "");
 
-            String rlt = "\n- Proceed on 10 feet along Gate Path towards Front Street / Treetops Way. \n";
+            String rlt = "\n- Walk 10 ft along Gate Path to Front Street / Treetops Way. \n";
 
             assertEquals(s, rlt);
         });
+
     }
 }

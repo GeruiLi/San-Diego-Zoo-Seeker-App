@@ -27,17 +27,6 @@ public class RoutePlannerTest {
     public ActivityScenarioRule<SearchListActivity> scenarioRule
             = new ActivityScenarioRule<>(SearchListActivity.class);
 
-    @Test
-    public void test_find_gate(){
-        ActivityScenario<SearchListActivity> scenario = scenarioRule.getScenario();
-
-        scenario.moveToState(Lifecycle.State.CREATED);
-
-        scenario.onActivity(activity -> {
-            String gate = RoutePlanner.findGate(vertexInfoMap);
-            assertEquals(gate, "entrance_exit_gate");
-        });
-    }
 
     @Test
     public void test_sort_plan(){
