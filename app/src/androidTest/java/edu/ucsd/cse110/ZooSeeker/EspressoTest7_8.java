@@ -4,7 +4,6 @@ package edu.ucsd.cse110.ZooSeeker;
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -19,9 +18,9 @@ import android.view.ViewParent;
 
 import androidx.test.espresso.DataInteraction;
 import androidx.test.espresso.ViewInteraction;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -32,19 +31,20 @@ import org.junit.runner.RunWith;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class DirectionActivityTest {
+public class EspressoTest7_8 {
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
+    public ActivityScenarioRule<MainActivity> mActivityScenarioRule =
+            new ActivityScenarioRule<>(MainActivity.class);
 
     @Test
-    public void directionActivityStory9DirectionTest() {
+    public void mainActivityTest() {
         DataInteraction appCompatTextView = onData(anything())
                 .inAdapterView(allOf(withId(R.id.searchedListView),
                         childAtPosition(
                                 withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
                                 0)))
-                .atPosition(4);
+                .atPosition(1);
         appCompatTextView.perform(click());
 
         DataInteraction appCompatTextView2 = onData(anything())
@@ -52,8 +52,16 @@ public class DirectionActivityTest {
                         childAtPosition(
                                 withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
                                 0)))
-                .atPosition(1);
+                .atPosition(2);
         appCompatTextView2.perform(click());
+
+        DataInteraction appCompatTextView3 = onData(anything())
+                .inAdapterView(allOf(withId(R.id.searchedListView),
+                        childAtPosition(
+                                withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
+                                0)))
+                .atPosition(3);
+        appCompatTextView3.perform(click());
 
         ViewInteraction appCompatButton = onView(
                 allOf(withId(R.id.plan_btn), withText("Plan"),
@@ -75,48 +83,35 @@ public class DirectionActivityTest {
                         isDisplayed()));
         appCompatButton2.perform(click());
 
-        onView(allOf(withId(R.id.direction_inf))).check(matches(withText("Walk 10 feet along Entrance Way.")));
-    }
-
-    @Test
-    public void directionActivityStory9DistanceTest() {
-        DataInteraction appCompatTextView = onData(anything())
-                .inAdapterView(allOf(withId(R.id.searchedListView),
-                        childAtPosition(
-                                withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
-                                0)))
-                .atPosition(4);
-        appCompatTextView.perform(click());
-
-        DataInteraction appCompatTextView2 = onData(anything())
-                .inAdapterView(allOf(withId(R.id.searchedListView),
-                        childAtPosition(
-                                withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
-                                0)))
-                .atPosition(1);
-        appCompatTextView2.perform(click());
-
-        ViewInteraction appCompatButton = onView(
-                allOf(withId(R.id.plan_btn), withText("Plan"),
+        ViewInteraction appCompatButton3 = onView(
+                allOf(withId(R.id.skip_button), withText("Skip"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(android.R.id.content),
                                         0),
-                                3),
+                                6),
                         isDisplayed()));
-        appCompatButton.perform(click());
+        appCompatButton3.perform(click());
 
-        ViewInteraction appCompatButton2 = onView(
-                allOf(withId(R.id.direction_btn), withText("Direction"),
+        ViewInteraction appCompatButton4 = onView(
+                allOf(withId(R.id.next_btn), withText("Next"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(android.R.id.content),
                                         0),
-                                1),
+                                2),
                         isDisplayed()));
-        appCompatButton2.perform(click());
+        appCompatButton4.perform(click());
 
-        onView(allOf(withId(R.id.distance_inf))).check(matches(withText("Entrance Plaza, 10 ft")));
+        ViewInteraction appCompatButton5 = onView(
+                allOf(withId(R.id.next_btn), withText("Next"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(android.R.id.content),
+                                        0),
+                                2),
+                        isDisplayed()));
+        appCompatButton5.perform(click());
     }
 
     private static Matcher<View> childAtPosition(
